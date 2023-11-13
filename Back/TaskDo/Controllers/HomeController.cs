@@ -9,7 +9,7 @@ namespace TaskDo.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok("Hello from HomeController!");
+            return Ok("Hello from Home Controller!");
         }
     }
 }
