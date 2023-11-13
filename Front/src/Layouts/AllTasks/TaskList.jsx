@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState,useEffect } from "react";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -11,6 +11,7 @@ import Typography from "@mui/material/Typography";
 import TaskIcon from "@mui/icons-material/Task";
 import CheckButton from "@mui/icons-material/RadioButtonUnchecked";
 import { Link } from "react-router-dom";
+import SpinnerLoading from "../Utils/SpinnerLoading";
 
 function TaskList() {
   const tasks = [
@@ -18,6 +19,26 @@ function TaskList() {
     { id: 2, title: "Task 2", description: "Description 2" },
     { id: 3, title: "Task 3", description: "Description 3" },
   ];
+
+  const[isLoading,setIsLoading] = useState(true);
+
+  
+  useEffect(() => {
+    // Simulating an asynchronous operation (e.g., data fetching)
+    const fetchData = async () => {
+      // Assume some asynchronous operation that takes time
+      await new Promise((resolve) => setTimeout(resolve,200));
+
+      // After the asynchronous operation is complete, set isLoading to false
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []); // The empty dependency array ensures the effect runs once after the initial render
+
+  if (isLoading) {
+    return <SpinnerLoading />;
+  }
 
   return (
     <Box sx={{ flexGrow: 1, maxWidth: "100%" }}>

@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useLocation } from "react-router-dom";
 import Button from "@mui/material/Button";
-import { FileUploader } from "./FileUploader";
+import { FileUploader } from "../Utils/FileUploader";
 import { useState } from "react";
-import BackButton from "./BackButton";
+import BackButton from "../Utils/BackButton";
+import SpinnerLoading from "../Utils/SpinnerLoading";
 
 function Subtask() {
   const location = useLocation();
@@ -18,6 +19,26 @@ function Subtask() {
     ? location.state.subtask
     : { title: "", description: "" };
 
+
+    const[isLoading,setIsLoading] = useState(true);
+
+  
+  useEffect(() => {
+    // Simulating an asynchronous operation (e.g., data fetching)
+    const fetchData = async () => {
+      // Assume some asynchronous operation that takes time
+      await new Promise((resolve) => setTimeout(resolve,200));
+
+      // After the asynchronous operation is complete, set isLoading to false
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []); // The empty dependency array ensures the effect runs once after the initial render
+
+  if (isLoading) {
+    return <SpinnerLoading />;
+  }
   return (
     <Box sx={{ flexGrow: 1, maxWidth: "100%" }}>
       <Grid container spacing={1}>
