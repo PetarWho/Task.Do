@@ -1,15 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TaskDo.Data;
 
 namespace TaskDo.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class HomeController : ControllerBase
     {
-        [HttpGet]
-        public IActionResult Get()
+        private readonly ApplicationDbContext context;
+        public HomeController(ApplicationDbContext _context)
         {
-            return Ok("Hello from Home Controller!");
+            context= _context;
+        }
+
+        [HttpGet("allusers")]
+        public IActionResult GetAllUsers()
+        {
+            var users = context.Users.ToList();
+
+            return Ok(users);
         }
     }
 }
