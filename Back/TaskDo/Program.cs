@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 using TaskDo.Data;
 using TaskDo.Data.Entities;
 
@@ -16,11 +19,31 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
     options.User.RequireUniqueEmail = true;
     options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireDigit = false;
+    options.Password.RequireUppercase = false;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
 
+var key = Encoding.ASCII.GetBytes("ASDFGHJKLQWERTYUIOPZXCVBNM1234567890");
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false; 
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+});
 
 builder.Services.AddControllers();
 
@@ -33,6 +56,16 @@ builder.Services.AddSwaggerGen(c =>
 // Authorization
 builder.Services.AddAuthorization();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -41,6 +74,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Task.Do API"));
 }
 
+app.UseCors();
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
