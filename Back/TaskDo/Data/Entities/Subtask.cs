@@ -13,10 +13,8 @@ namespace TaskDo.Data.Entities
         public string Title { get; set; } = null!;
 
         public string? Description { get; set; }
-        public List<string> Notes { get; set; } = new List<string>();
-
-        // Saving as URL or Bitmap or byte[] ??
-        public List<string> Images { get; set; } = new List<string>();
+        public List<Note> Notes { get; set; } = new List<Note>();
+        public List<Picture> Images { get; set; } = new List<Picture>();
 
         [Required]
         [Range(0, 50)]
@@ -30,12 +28,12 @@ namespace TaskDo.Data.Entities
 
         [Required]
         [ForeignKey(nameof(Task))]
-        public int TaskId { get; set; }
+        public Guid TaskId { get; set; }
         public Task Task { get; set; } = null!;
 
         [Required]
         [ForeignKey(nameof(User))]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public User User { get; set; } = null!;
     }
 }
