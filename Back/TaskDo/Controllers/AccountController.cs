@@ -24,8 +24,8 @@ namespace TaskDo.Controllers
 
         #region Register
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterModel model)
+        [HttpPost("register/employee")]
+        public async Task<IActionResult> RegisterEmployee(RegisterModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -45,7 +45,37 @@ namespace TaskDo.Controllers
 
             if (result.Succeeded)
             {
-                return Ok("User created successfully");
+                var token = GenerateJwtToken(user);
+                return Ok(new { Token = token });
+            }
+            else
+            {
+                return BadRequest(result.Errors);
+            }
+        }
+
+        [HttpPost("register/manager")]
+        public async Task<IActionResult> RegisterManager(RegisterModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User user = new Manager
+            {
+                UserName = model.Username,
+                Email = model.Email,
+                UserType = UserTypeEnum.Manager
+            };
+
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            if (result.Succeeded)
+            {
+                var token = GenerateJwtToken(user);
+                return Ok(new { Token = token });
             }
             else
             {
@@ -57,8 +87,8 @@ namespace TaskDo.Controllers
 
         #region Login
 
-        [HttpPost("login/user")]
-        public async Task<IActionResult> LoginUser(LoginModel model)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -66,49 +96,6 @@ namespace TaskDo.Controllers
             }
 
             var user = await _userManager.FindByEmailAsync(model.Email);
-
-            if (user == null)
-            {
-                return BadRequest("Invalid email or password");
-            }
-
-            if (user.UserType == UserTypeEnum.Manager)
-            {
-                return BadRequest("Use manager login instead!");
-            }
-
-            var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, lockoutOnFailure: false);
-
-            if (result.Succeeded)
-            {
-                var token = GenerateJwtToken(user);
-                return Ok(new { Token = token });
-            }
-            else
-            {
-                return BadRequest("Invalid email or password");
-            }
-        }
-
-        [HttpPost("login/manager")]
-        public async Task<IActionResult> LoginManager(LoginModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
-
-            if (user == null)
-            {
-                return BadRequest("Invalid email or password");
-            }
-
-            if (user.UserType == UserTypeEnum.Employee)
-            {
-                return BadRequest("Only managers can log in here!");
-            }
 
             var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, lockoutOnFailure: false);
 
