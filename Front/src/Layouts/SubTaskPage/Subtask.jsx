@@ -8,6 +8,7 @@ import { FileUploader } from "../Utils/FileUploader";
 import { useState } from "react";
 import BackButton from "../Utils/BackButton";
 import SpinnerLoading from "../Utils/SpinnerLoading";
+import TextField from "@mui/material/TextField";
 
 function Subtask() {
   const location = useLocation();
@@ -19,15 +20,13 @@ function Subtask() {
     ? location.state.subtask
     : { title: "", description: "" };
 
+  const [isLoading, setIsLoading] = useState(true);
 
-    const[isLoading,setIsLoading] = useState(true);
-
-  
   useEffect(() => {
     // Simulating an asynchronous operation (e.g., data fetching)
     const fetchData = async () => {
       // Assume some asynchronous operation that takes time
-      await new Promise((resolve) => setTimeout(resolve,200));
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
       // After the asynchronous operation is complete, set isLoading to false
       setIsLoading(false);
@@ -67,6 +66,16 @@ function Subtask() {
           {fileName ? <p>Uploaded file: {fileName}</p> : null}
         </Grid>
         <Grid item xs={12} md={12}>
+        <TextField
+              id="outlined-multiline-static"
+              label="Notes"
+              multiline
+              rows={6}
+              placeholder="Leave a note"
+              sx={{width: '300px'}}
+            /> 
+        </Grid>
+        <Grid item xs={12} md={12}>
           <Button
             variant="outlined"
             disabled
@@ -75,6 +84,8 @@ function Subtask() {
           >
             Done
           </Button>
+          <Box>
+          </Box>
         </Grid>
       </Grid>
     </Box>
