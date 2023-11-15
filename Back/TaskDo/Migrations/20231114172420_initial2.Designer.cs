@@ -12,8 +12,8 @@ using TaskDo.Data;
 namespace TaskDo.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231114124736_Initial")]
-    partial class Initial
+    [Migration("20231114172420_initial2")]
+    partial class initial2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -347,6 +347,9 @@ namespace TaskDo.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<int>("UserType")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

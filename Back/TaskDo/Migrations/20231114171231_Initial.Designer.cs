@@ -12,8 +12,8 @@ using TaskDo.Data;
 namespace TaskDo.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231114130456_initial2")]
-    partial class initial2
+    [Migration("20231114171231_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
