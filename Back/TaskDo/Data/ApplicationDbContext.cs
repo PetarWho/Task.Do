@@ -13,6 +13,7 @@ namespace TaskDo.Data
         public DbSet<Note> Notes { get; set; }
         public DbSet<Picture> Pictures { get; set; }
         public DbSet<EmployeeTask> EmployeesTasks { get; set; }
+        public DbSet<JsonWebToken> JsonWebTokens { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

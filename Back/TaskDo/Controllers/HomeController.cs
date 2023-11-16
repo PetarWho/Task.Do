@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TaskDo.Data;
 
 namespace TaskDo.Controllers
@@ -10,7 +12,7 @@ namespace TaskDo.Controllers
         private readonly ApplicationDbContext context;
         public HomeController(ApplicationDbContext _context)
         {
-            context= _context;
+            context = _context;
         }
 
         [HttpGet("allusers")]
@@ -20,5 +22,14 @@ namespace TaskDo.Controllers
 
             return Ok(users);
         }
+
+        [Authorize(JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet("secure")]
+        public IActionResult SecureEndpoint()
+        {
+            return Ok("This is a secure endpoint");
+        }
     }
+
+
 }

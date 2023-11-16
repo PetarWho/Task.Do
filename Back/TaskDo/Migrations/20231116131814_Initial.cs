@@ -174,25 +174,43 @@ namespace TaskDo.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "JsonWebTokens",
+                columns: table => new
+                {
+                    Token = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_JsonWebTokens", x => x.Token);
+                    table.ForeignKey(
+                        name: "FK_JsonWebTokens_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "EmployeesTasks",
                 columns: table => new
                 {
-                    EmployeeId = table.Column<int>(type: "int", nullable: false),
-                    TaskId = table.Column<int>(type: "int", nullable: false),
-                    EmployeeId1 = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    TaskId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TaskId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_EmployeesTasks", x => new { x.EmployeeId, x.TaskId });
                     table.ForeignKey(
-                        name: "FK_EmployeesTasks_AspNetUsers_EmployeeId1",
-                        column: x => x.EmployeeId1,
+                        name: "FK_EmployeesTasks_AspNetUsers_EmployeeId",
+                        column: x => x.EmployeeId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_EmployeesTasks_Tasks_TaskId1",
-                        column: x => x.TaskId1,
+                        name: "FK_EmployeesTasks_Tasks_TaskId",
+                        column: x => x.TaskId,
                         principalTable: "Tasks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -311,14 +329,14 @@ namespace TaskDo.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EmployeesTasks_EmployeeId1",
+                name: "IX_EmployeesTasks_TaskId",
                 table: "EmployeesTasks",
-                column: "EmployeeId1");
+                column: "TaskId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EmployeesTasks_TaskId1",
-                table: "EmployeesTasks",
-                column: "TaskId1");
+                name: "IX_JsonWebTokens_UserId",
+                table: "JsonWebTokens",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notes_SubtaskId",
@@ -365,6 +383,9 @@ namespace TaskDo.Migrations
 
             migrationBuilder.DropTable(
                 name: "EmployeesTasks");
+
+            migrationBuilder.DropTable(
+                name: "JsonWebTokens");
 
             migrationBuilder.DropTable(
                 name: "Notes");

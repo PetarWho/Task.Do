@@ -55,6 +55,7 @@ builder.Services.AddSwaggerGen(c =>
 
 // Authorization
 builder.Services.AddAuthorization();
+builder.Services.AddAuthentication();
 
 builder.Services.AddCors(options =>
 {

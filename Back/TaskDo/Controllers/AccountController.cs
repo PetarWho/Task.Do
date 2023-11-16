@@ -10,6 +10,11 @@ using System.Text;
 
 namespace TaskDo.Controllers
 {
+
+    /// <summary>
+    /// Controller for managing user accounts
+    /// </summary>
+
     [ApiController]
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
@@ -23,6 +28,12 @@ namespace TaskDo.Controllers
         }
 
         #region Register
+
+        /// <summary>
+        /// Action for register of Employee
+        /// </summary>
+        /// <param name="model">RegisterModel</param>
+        /// <returns>JWT for success or BadRequest for error</returns>
 
         [HttpPost("register/employee")]
         public async Task<IActionResult> RegisterEmployee(RegisterModel model)
@@ -45,7 +56,7 @@ namespace TaskDo.Controllers
 
             if (result.Succeeded)
             {
-                var token = GenerateJwtToken(user);
+                var token = GenerateJwtToken(user, UserTypeEnum.Employee.ToString());
                 return Ok(new { Token = token });
             }
             else
@@ -54,6 +65,12 @@ namespace TaskDo.Controllers
             }
         }
 
+        /// <summary>
+        /// Action for register of Manager
+        /// </summary>
+        /// <param name="model">RegisterModel</param>
+        /// <returns>JWT for success or BadRequest for error</returns>
+        
         [HttpPost("register/manager")]
         public async Task<IActionResult> RegisterManager(RegisterModel model)
         {
@@ -74,7 +91,7 @@ namespace TaskDo.Controllers
 
             if (result.Succeeded)
             {
-                var token = GenerateJwtToken(user);
+                var token = GenerateJwtToken(user, UserTypeEnum.Manager.ToString());
                 return Ok(new { Token = token });
             }
             else
@@ -87,6 +104,12 @@ namespace TaskDo.Controllers
 
         #region Login
 
+        /// <summary>
+        /// Action for logging in
+        /// </summary>
+        /// <param name="model">RegisterModel</param>
+        /// <returns>JWT for success or BadRequest for error</returns>
+        
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginModel model)
         {
@@ -101,7 +124,7 @@ namespace TaskDo.Controllers
 
             if (result.Succeeded)
             {
-                var token = GenerateJwtToken(user);
+                var token = GenerateJwtToken(user, user.UserType.ToString());
                 return Ok(new { Token = token });
             }
             else
@@ -110,19 +133,25 @@ namespace TaskDo.Controllers
             }
         }
 
-        private string GenerateJwtToken(User user)
+        private string GenerateJwtToken(User user, string role)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes("ASDFGHJKLQWERTYUIOPZXCVBNM1234567890");
+            var expiryDate = DateTime.UtcNow.AddHours(24);
+
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, user.Id.ToString()),
+        new Claim(ClaimTypes.Role, role) 
+    };
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-            new Claim(ClaimTypes.Name, user.Id.ToString()),
-        }),
-                Expires = DateTime.UtcNow.AddHours(24), 
+                Subject = new ClaimsIdentity(claims),
+                Expires = expiryDate,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
