@@ -14,6 +14,7 @@ namespace TaskDo.Migrations
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
+
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -21,6 +22,7 @@ namespace TaskDo.Migrations
             migrationBuilder.DropColumn(
                 name: "UserType",
                 table: "AspNetUsers");
+
         }
     }
 }
