@@ -7,6 +7,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using TaskDo.Data;
+using System.Text.Json;
 
 namespace TaskDo.Controllers
 {
@@ -21,10 +24,12 @@ namespace TaskDo.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
+        private readonly ApplicationDbContext _context;
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
         }
 
         #region Register
@@ -87,6 +92,7 @@ namespace TaskDo.Controllers
             };
 
 
+
             var result = await _userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)
@@ -133,6 +139,10 @@ namespace TaskDo.Controllers
             }
         }
 
+
+        #endregion
+
+        #region JWT
         private string GenerateJwtToken(User user, string role)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -153,9 +163,69 @@ namespace TaskDo.Controllers
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var tokenStr = tokenHandler.WriteToken(token);
+            _context.JsonWebTokens.Add(new JsonWebToken()
+            {
+                Token = tokenStr,
+                UserId = user.Id,
+                ExpiryDate = expiryDate
+            });
+            _context.SaveChanges();
+            return tokenStr;
         }
 
         #endregion
+
+        #region Logout
+
+        [HttpPost("logout")]
+        public IActionResult Logout(string token)
+        {
+            var jwt = _context.JsonWebTokens.FirstOrDefault(t => t.Token == token);
+
+            if (jwt == null)
+            {
+                return NotFound("Token not found");
+            }
+
+            try
+            {
+                _context.JsonWebTokens.Remove(jwt);
+                _context.SaveChanges();
+                return Ok("Token deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        #endregion
+
+        [HttpGet("decode_token")]
+        public string GetTokenAsJson(string token)
+        {
+            string secret = "ASDFGHJKLQWERTYUIOPZXCVBNM1234567890";
+            var key = Encoding.ASCII.GetBytes(secret);
+            var handler = new JwtSecurityTokenHandler();
+            var validations = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };
+
+            var claimsPrincipal = handler.ValidateToken(token, validations, out var tokenSecure);
+
+            var claims = claimsPrincipal.Claims
+                .Where(c => !string.IsNullOrEmpty(c.Type) && !string.IsNullOrEmpty(c.Value))
+                .ToDictionary(c => c.Type, c => c.Value);
+
+            var tokenDataAsSimplifiedJson = JsonSerializer.Serialize(claims);
+
+            return tokenDataAsSimplifiedJson;
+        }
+
     }
 }
