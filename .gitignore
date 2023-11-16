@@ -398,4 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 
 
-/Back/TaskDo/appsettings.json
+Back/TaskDo/appsettings.json
