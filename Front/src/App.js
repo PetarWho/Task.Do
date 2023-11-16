@@ -5,8 +5,7 @@ import Task from "./Layouts/Task/Task";
 import Subtask from "./Layouts/SubTaskPage/Subtask";
 import Header from "./Layouts/HeaderAndFooter/Header";
 import Footer from "./Layouts/HeaderAndFooter/Footer";
-
-
+import TaskCalendar from "./Layouts/TaskCalendar/TaskCalendar";
 
 function App() {
   return (
@@ -14,7 +13,8 @@ function App() {
       <Header/>
       <BrowserRouter>
       <Routes>
-        <Route path="/" element={<TaskList />} />
+        {/* <Route path="/" element={<TaskList />} /> */}
+        <Route path="/" element={<TaskCalendar />} />
         <Route path="/task/:taskId" element={<Task />} />
         <Route path="/subtask/:subtaskId" element={<Subtask />} />
       </Routes>
