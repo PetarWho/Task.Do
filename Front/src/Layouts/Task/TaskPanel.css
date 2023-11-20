@@ -1,0 +1,60 @@
+.task-panel-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  h2 {
+    color: #333;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  textarea {
+    width: 48%; /* Adjusted to full width */
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+  }
+  
+  .date-group {
+    display: flex;
+    justify-content: space-between; /* Improved symmetry */
+    gap: 10px;
+  }
+  
+  input[type="text"],
+  input[type="date"] {
+    width: 48%; /* Adjusted to give equal width */
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  button {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+
+  label{
+    width: 100px;
+  }
+  
+  /* Additional styles can be added as needed */
+  

@@ -1,64 +1,126 @@
-// Login.js
-import React, { useState } from "react";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
+import React, { useState } from 'react';
 
-function LoginWidget({ onLogin }) {
-  const [value, setValue] = useState(0);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const API_BASE_URL = 'https://localhost:7136/api/Account';
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
+const LoginWidget = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
-
-  const handleSubmit = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    onLogin({ email, password, userType: value === 0 ? "user" : "manager" });
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid email or password');
+      }
+
+      const data = await response.json();
+      const jwtToken = data.Token;
+      setToken(jwtToken);
+      setError(null);
+
+      console.log('JWT Token:', jwtToken);
+    } catch (error) {
+      setError(error.message);
+      console.error('Login failed:', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAuthorizedRequest = async () => {
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Request failed');
+      }
+
+      const responseData = await response.json();
+      console.log('User Profile:', responseData);
+      setError(null);
+    } catch (error) {
+      setError(error.message);
+      console.error('Authorized request failed:', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    
+    setToken(null);
+    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   };
 
   return (
-    <Box>
-      <Tabs value={value} onChange={handleChange} centered>
-        <Tab label="User" />
-        <Tab label="Manager" />
-      </Tabs>
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="Email"
+    <div>
+      <h2>Login Form</h2>
+      <form onSubmit={handleLogin}>
+        <label htmlFor="email">Email:</label>
+        <input
           type="email"
-          fullWidth
-          margin="dense"
+          id="email"
+          name="email"
           value={email}
-          onChange={handleEmailChange}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <TextField
-          label="Password"
+        <br />
+
+        <label htmlFor="password">Password:</label>
+        <input
           type="password"
-          fullWidth
-          margin="dense"
+          id="password"
+          name="password"
           value={password}
-          onChange={handlePasswordChange}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <Button type="submit" variant="contained" color="primary" size="small">
-          Login
-        </Button>
+        <br />
+
+        <button type="submit" disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
-    </Box>
+
+      {error && <div style={{ color: 'red' }}>{error}</div>}
+
+      {token && (
+        <div>
+          <h2>Authorized Request</h2>
+          <button onClick={handleAuthorizedRequest} disabled={loading}>
+            {loading ? 'Making request...' : 'Make Authorized Request'}
+          </button>
+          <br />
+          <button onClick={handleLogout}>Logout</button>
+        </div>
+      )}
+    </div>
   );
-}
+};
 
 export default LoginWidget;
