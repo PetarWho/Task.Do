@@ -10,8 +10,11 @@ import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import LoginWidget from "../../Auth/LoginWidget";
+import { Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const settings = ["Profile", "Logout"];
+const pages = ["Users", "Tasks"];
 
 function Header() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -26,6 +29,14 @@ function Header() {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+  const navigate = useNavigate();
+  const navNavigate = (pageName) => {
+    if (pageName === "Tasks") {
+      navigate("/adminTasks");
+    } else {
+      navigate("/users");
+    }
   };
 
   return (
@@ -53,6 +64,24 @@ function Header() {
             >
               DiaDo
             </Typography>
+          </Box>
+          {/* navbar for admins */}
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { md: "flex" },
+              justifyContent: "flex-end",
+            }}
+          >
+            {pages.map((page) => (
+              <Button
+                key={page}
+                onClick={() => navNavigate(page)}
+                sx={{ my: 2, color: "white", display: "block" }}
+              >
+                {page}
+              </Button>
+            ))}
           </Box>
 
           <Box sx={{ flexGrow: 1 }} />
