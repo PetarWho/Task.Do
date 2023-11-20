@@ -157,25 +157,36 @@ namespace TaskDo.Migrations
 
             modelBuilder.Entity("TaskDo.Data.Entities.EmployeeTask", b =>
                 {
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TaskId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("EmployeeId1")
+                    b.Property<string>("EmployeeId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<Guid>("TaskId1")
+                    b.Property<Guid>("TaskId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("EmployeeId", "TaskId");
 
-                    b.HasIndex("EmployeeId1");
-
-                    b.HasIndex("TaskId1");
+                    b.HasIndex("TaskId");
 
                     b.ToTable("EmployeesTasks");
+                });
+
+            modelBuilder.Entity("TaskDo.Data.Entities.JsonWebToken", b =>
+                {
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Token");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("JsonWebTokens");
                 });
 
             modelBuilder.Entity("TaskDo.Data.Entities.Note", b =>
@@ -248,7 +259,6 @@ namespace TaskDo.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -436,17 +446,30 @@ namespace TaskDo.Migrations
                 {
                     b.HasOne("TaskDo.Data.Entities.Employee", "Employee")
                         .WithMany("EmployeeTasks")
-                        .HasForeignKey("EmployeeId1");
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("TaskDo.Data.Entities.Task", "Task")
                         .WithMany("EmployeeTasks")
-                        .HasForeignKey("TaskId1")
+                        .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Employee");
 
                     b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("TaskDo.Data.Entities.JsonWebToken", b =>
+                {
+                    b.HasOne("TaskDo.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TaskDo.Data.Entities.Note", b =>
@@ -481,9 +504,7 @@ namespace TaskDo.Migrations
 
                     b.HasOne("TaskDo.Data.Entities.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Task");
 

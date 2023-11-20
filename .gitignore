@@ -396,3 +396,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+
+Back/TaskDo/appsettings.json
+Back/TaskDo/appsettings.json
