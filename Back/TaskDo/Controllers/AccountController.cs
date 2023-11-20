@@ -75,7 +75,7 @@ namespace TaskDo.Controllers
         /// </summary>
         /// <param name="model">RegisterModel</param>
         /// <returns>JWT for success or BadRequest for error</returns>
-        
+
         [HttpPost("register/manager")]
         public async Task<IActionResult> RegisterManager(RegisterModel model)
         {
@@ -115,7 +115,7 @@ namespace TaskDo.Controllers
         /// </summary>
         /// <param name="model">RegisterModel</param>
         /// <returns>JWT for success or BadRequest for error</returns>
-        
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginModel model)
         {
@@ -152,7 +152,7 @@ namespace TaskDo.Controllers
             var claims = new List<Claim>
     {
         new Claim(ClaimTypes.Name, user.Id.ToString()),
-        new Claim(ClaimTypes.Role, role) 
+        new Claim(ClaimTypes.Role, role)
     };
 
             var tokenDescriptor = new SecurityTokenDescriptor

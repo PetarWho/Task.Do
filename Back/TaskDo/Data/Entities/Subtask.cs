@@ -31,9 +31,8 @@ namespace TaskDo.Data.Entities
         public Guid TaskId { get; set; }
         public Task Task { get; set; } = null!;
 
-        [Required]
         [ForeignKey(nameof(User))]
-        public string UserId { get; set; }
-        public User User { get; set; } = null!;
+        public string? UserId { get; set; }
+        public User? User { get; set; } 
     }
 }
