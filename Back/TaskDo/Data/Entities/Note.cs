@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TaskDo.Data.Entities
 {
@@ -9,5 +10,10 @@ namespace TaskDo.Data.Entities
 
         [Required]
         public string Text { get; set; } = null!;
+
+        [Required]
+        [ForeignKey(nameof(Subtask))]
+        public Guid SubtaskId { get; set; }
+        public Subtask Subtask { get; set; }
     }
 }

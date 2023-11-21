@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Http.Json;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using TaskDo.Data;
 using TaskDo.Data.Entities;
 using TaskDo.Models.Subtask;
@@ -86,6 +84,44 @@ namespace TaskDo.Controllers
             }
             var serializedTask = JsonSerializer.Serialize(subtask, _jsonOptions);
             return Ok(serializedTask);
+        }
+
+        [HttpPost("add_image")]
+        public async Task<IActionResult> AddImageToSubtask(Guid subtaskId, string imagePath)
+        {
+            var subtask = await _context.Subtasks.FirstOrDefaultAsync(x=>x.Id == subtaskId);
+            if (subtask == null)
+            {
+                return NotFound("Subtask not found");
+            }
+            var image = new Picture()
+            {
+                Subtask = subtask,
+                URL = imagePath
+            };
+
+            await _context.AddAsync(image);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPost("add_note")]
+        public async Task<IActionResult> AddNoteToSubtask(Guid subtaskId, string noteText)
+        {
+            var subtask = await _context.Subtasks.FirstOrDefaultAsync(x => x.Id == subtaskId);
+            if (subtask == null)
+            {
+                return NotFound("Subtask not found");
+            }
+            var note = new Note()
+            {
+                SubtaskId = subtaskId,
+                Text = noteText
+            };
+
+            await _context.AddAsync(note);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
     }
 }
