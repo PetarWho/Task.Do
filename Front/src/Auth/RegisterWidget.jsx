@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import axios from "axios";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -23,7 +24,22 @@ function RegisterWidget({ onRegister }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const url = `https://localhost:7136/api/register/employee`;
     onRegister({ username, email, password });
+    const data = {
+      Username : username,
+      Email : email,
+      Password : password
+    }
+
+    axios.post(url,data)
+    .then((result)=>{
+      const dt = result.data;
+
+    })
+    .catch((error)=>{
+      console.log(error);
+    })
   };
 
   return (
