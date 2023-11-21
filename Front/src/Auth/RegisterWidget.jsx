@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import axios from "axios";
 import TextField from "@mui/material/TextField";
@@ -26,24 +25,32 @@ function RegisterWidget({ onRegister }) {
     e.preventDefault();
     const url = `https://localhost:7136/api/register/employee`;
     onRegister({ username, email, password });
+
     const data = {
-      Username : username,
-      Email : email,
-      Password : password
-    }
+      Username: username,
+      Email: email,
+      Password: password,
+    };
 
-    axios.post(url,data)
-    .then((result)=>{
-      const dt = result.data;
-
-    })
-    .catch((error)=>{
-      console.log(error);
-    })
+    axios.post(url, data)
+      .then((result) => {
+        const dt = result.data;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
-    <Box>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        maxWidth: "300px",
+        margin: "0 auto",
+      }}
+    >
       <form onSubmit={handleSubmit}>
         <TextField
           label="Username"
