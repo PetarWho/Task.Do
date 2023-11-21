@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
+using TaskDo.Utils;
 using TaskDo.Data;
 using TaskDo.Data.Entities;
 using TaskDo.Data.Entities.Enums;
@@ -141,40 +141,6 @@ namespace TaskDo.Controllers
 
         #endregion
 
-        #region JWT
-        private string GenerateJwtToken(User user, string role)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("ASDFGHJKLQWERTYUIOPZXCVBNM1234567890");
-            var expiryDate = DateTime.UtcNow.AddHours(24);
-
-            var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, user.Id.ToString()),
-        new Claim(ClaimTypes.Role, role)
-    };
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = expiryDate,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenStr = tokenHandler.WriteToken(token);
-            _context.JsonWebTokens.Add(new JsonWebToken()
-            {
-                Token = tokenStr,
-                UserId = user.Id,
-                ExpiryDate = expiryDate
-            });
-            _context.SaveChanges();
-            return tokenStr;
-        }
-
-        #endregion
-
         #region Logout
 
         [HttpPost("logout")]
@@ -201,30 +167,43 @@ namespace TaskDo.Controllers
 
         #endregion
 
+        #region JWT
+        private string GenerateJwtToken(User user, string role)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes("ASDFGHJKLQWERTYUIOPZXCVBNM1234567890");
+            var expiryDate = DateTime.UtcNow.AddHours(24);
+
+            var claims = new List<Claim>
+    {
+        new Claim("id", user.Id.ToString()),
+        new Claim("role", role)
+    };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = expiryDate,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenStr = tokenHandler.WriteToken(token);
+            _context.JsonWebTokens.Add(new JsonWebToken()
+            {
+                Token = tokenStr,
+                UserId = user.Id,
+                ExpiryDate = expiryDate
+            });
+            _context.SaveChanges();
+            return tokenStr;
+        }
+
         [HttpGet("decode_token")]
         public string GetTokenAsJson(string token)
         {
-            string secret = "ASDFGHJKLQWERTYUIOPZXCVBNM1234567890";
-            var key = Encoding.ASCII.GetBytes(secret);
-            var handler = new JwtSecurityTokenHandler();
-            var validations = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false
-            };
-
-            var claimsPrincipal = handler.ValidateToken(token, validations, out var tokenSecure);
-
-            var claims = claimsPrincipal.Claims
-                .Where(c => !string.IsNullOrEmpty(c.Type) && !string.IsNullOrEmpty(c.Value))
-                .ToDictionary(c => c.Type, c => c.Value);
-
-            var tokenDataAsSimplifiedJson = JsonSerializer.Serialize(claims);
-
-            return tokenDataAsSimplifiedJson;
+            return JwtDecoder.GetTokenAsJson(token);
         }
-
+        #endregion
     }
 }
