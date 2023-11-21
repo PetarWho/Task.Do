@@ -10,6 +10,9 @@ import AdminTasks from "./Layouts/AdminPanel/AdminTasks";
 import CreateTask from "./Layouts/AdminPanel/CreateTask";
 import CreateSubtask from "./Layouts/AdminPanel/CreateSubTask";
 import AdminCalendar from "./Layouts/AdminPanel/AdminTaskCalendar";
+import RegistrationForm from "./Layouts/RegistrationForm";
+import LoginForm from "./Layouts/LoginForm"
+// import Users from './Layouts/Users/Users'
 
 function App() {
   return (
@@ -19,7 +22,11 @@ function App() {
         <Routes>
           {/* <Route path="/" element={<TaskList />} /> */}
           {/* <Route path="/" element={<TaskCalendar />} /> */}
-          <Route path="/" element={<AdminCalendar />} />
+
+
+          {/* <Route path="/" element={<Users />} /> */}
+          {/* <Route path="/" element={<AdminCalendar />} /> */}
+          <Route path="/" element={<LoginForm/>} />
           <Route path="/adminTasks" element={<AdminTasks />} />
           <Route path="/createTask" element={<CreateTask />} />
           <Route path="/createSubtask" element={<CreateSubtask />} />

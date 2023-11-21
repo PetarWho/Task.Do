@@ -1,4 +1,3 @@
-// Login.js
 import React, { useState } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -29,7 +28,13 @@ function LoginWidget({ onLogin }) {
   };
 
   return (
-    <Box>
+    <Box sx={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      maxWidth: "300px",
+      margin: "0 auto",
+    }}>
       <Tabs value={value} onChange={handleChange} centered>
         <Tab label="User" />
         <Tab label="Manager" />

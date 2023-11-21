@@ -24,10 +24,17 @@ function RegisterWidget({ onRegister }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     onRegister({ username, email, password });
+    
   };
 
   return (
-    <Box>
+    <Box sx={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      maxWidth: "300px",
+      margin: "0 auto",
+    }}>
       <form onSubmit={handleSubmit}>
         <TextField
           label="Username"
