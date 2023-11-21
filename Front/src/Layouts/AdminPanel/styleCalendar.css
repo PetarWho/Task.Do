@@ -1,0 +1,6 @@
+.fc-event.fc-event-start.fc-event-end.fc-event-today.fc-event-future.fc-timegrid-event.fc-v-event {
+    height: 80px;
+}
+.fc-event{
+    cursor: pointer;
+}

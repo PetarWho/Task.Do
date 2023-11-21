@@ -10,11 +10,13 @@ import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import LoginWidget from "../../Auth/LoginWidget";
+import { Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const settings = ["Profile", "Logout"];
+const pages = ["Users", "Tasks"];
 
 function Header() {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const date = {
     someDate: new Date().getDate(),
@@ -27,6 +29,39 @@ function Header() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+  const navigate = useNavigate();
+  const navNavigate = (pageName) => {
+    if (pageName === "Tasks") {
+      navigate("/adminTasks");
+    } else {
+      navigate("/users");
+    }
+  };
+
+  const handleLogout = async () => {
+    const currentToken = localStorage.getItem("token");
+    try {
+      const response = await fetch(
+        `https://localhost:7136/api/Account/logout?token=${encodeURIComponent(currentToken)}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
+  
+      if (response.ok) {
+        console.log("You are logout successfully!");
+        localStorage.clear(currentToken)
+      } else {
+        console.log("Error");
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+  
 
   return (
     <AppBar position="static" sx={{ backgroundColor: "rgb(177, 226, 247)" }}>
@@ -53,6 +88,24 @@ function Header() {
             >
               DiaDo
             </Typography>
+          </Box>
+          {/* navbar for admins */}
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { md: "flex" },
+              justifyContent: "flex-end",
+            }}
+          >
+            {pages.map((page) => (
+              <Button
+                key={page}
+                onClick={() => navNavigate(page)}
+                sx={{ my: 2, color: "white", display: "block" }}
+              >
+                {page}
+              </Button>
+            ))}
           </Box>
 
           <Box sx={{ flexGrow: 1 }} />
@@ -90,7 +143,12 @@ function Header() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                <MenuItem
+                  key={setting}
+                  onClick={
+                    setting === "Logout" ? handleLogout : handleCloseUserMenu
+                  }
+                >
                   <Typography textAlign="center">{setting}</Typography>
                 </MenuItem>
               ))}
@@ -101,5 +159,4 @@ function Header() {
     </AppBar>
   );
 }
-
 export default Header;

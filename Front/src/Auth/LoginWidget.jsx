@@ -1,4 +1,3 @@
-// Login.js
 import React, { useState } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -15,21 +14,21 @@ function LoginWidget({ onLogin }) {
     setValue(newValue);
   };
 
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    onLogin({ email, password, userType: value === 0 ? "user" : "manager" });
+    // Handle form submission logic here
   };
 
   return (
-    <Box>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        maxWidth: "300px",
+        margin: "0 auto",
+      }}
+    >
       <Tabs value={value} onChange={handleChange} centered>
         <Tab label="User" />
         <Tab label="Manager" />
@@ -38,22 +37,26 @@ function LoginWidget({ onLogin }) {
         <TextField
           label="Email"
           type="email"
-          fullWidth
-          margin="dense"
+          id="email"
+          name="email"
           value={email}
-          onChange={handleEmailChange}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
+        <br />
+
         <TextField
           label="Password"
           type="password"
-          fullWidth
-          margin="dense"
+          id="password"
+          name="password"
           value={password}
-          onChange={handlePasswordChange}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <Button type="submit" variant="contained" color="primary" size="small">
+        <br />
+
+        <Button variant="contained" type="submit">
           Login
         </Button>
       </form>

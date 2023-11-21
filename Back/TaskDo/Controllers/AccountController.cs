@@ -1,19 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using TaskDo.Data.Entities.Enums;
-using TaskDo.Data.Entities;
-using TaskDo.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
-using TaskDo.Data;
-using System.Text.Json;
-<<<<<<< Updated upstream
-=======
 using TaskDo.Utils;
->>>>>>> Stashed changes
+using TaskDo.Data;
+using TaskDo.Data.Entities;
+using TaskDo.Data.Entities.Enums;
+using TaskDo.Models;
 
 namespace TaskDo.Controllers
 {
@@ -79,7 +74,7 @@ namespace TaskDo.Controllers
         /// </summary>
         /// <param name="model">RegisterModel</param>
         /// <returns>JWT for success or BadRequest for error</returns>
-        
+
         [HttpPost("register/manager")]
         public async Task<IActionResult> RegisterManager(RegisterModel model)
         {
@@ -119,7 +114,7 @@ namespace TaskDo.Controllers
         /// </summary>
         /// <param name="model">RegisterModel</param>
         /// <returns>JWT for success or BadRequest for error</returns>
-        
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginModel model)
         {
@@ -146,43 +141,6 @@ namespace TaskDo.Controllers
 
         #endregion
 
-<<<<<<< Updated upstream
-        #region JWT
-        private string GenerateJwtToken(User user, string role)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("ASDFGHJKLQWERTYUIOPZXCVBNM1234567890");
-            var expiryDate = DateTime.UtcNow.AddHours(24);
-
-            var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, user.Id.ToString()),
-        new Claim(ClaimTypes.Role, role) 
-    };
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = expiryDate,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenStr = tokenHandler.WriteToken(token);
-            _context.JsonWebTokens.Add(new JsonWebToken()
-            {
-                Token = tokenStr,
-                UserId = user.Id,
-                ExpiryDate = expiryDate
-            });
-            _context.SaveChanges();
-            return tokenStr;
-        }
-
-        #endregion
-
-=======
->>>>>>> Stashed changes
         #region Logout
 
         [HttpPost("logout")]
