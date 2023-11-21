@@ -1,5 +1,5 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route} from "react-router-dom";
+
 import Task from "./Layouts/Task/Task";
 import Subtask from "./Layouts/SubTaskPage/Subtask";
 import Header from "./Layouts/HeaderAndFooter/Header";
@@ -7,13 +7,10 @@ import Footer from "./Layouts/HeaderAndFooter/Footer";
 import TaskCalendar from "./Layouts/TaskCalendar/TaskCalendar";
 import TaskPanel from "./Layouts/Task/TaskPanel";
 
-
-
-
-
 function App() {
   return (
     <div className="App">
+
       <Header/>
      
       <BrowserRouter>
