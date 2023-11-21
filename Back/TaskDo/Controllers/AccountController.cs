@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using TaskDo.Data.Entities.Enums;
-using TaskDo.Data.Entities;
-using TaskDo.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
-using TaskDo.Data;
 using System.Text.Json;
+using TaskDo.Data;
+using TaskDo.Data.Entities;
+using TaskDo.Data.Entities.Enums;
+using TaskDo.Models;
 
 namespace TaskDo.Controllers
 {
