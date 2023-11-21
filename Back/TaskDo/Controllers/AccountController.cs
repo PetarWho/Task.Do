@@ -10,6 +10,10 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using TaskDo.Data;
 using System.Text.Json;
+<<<<<<< Updated upstream
+=======
+using TaskDo.Utils;
+>>>>>>> Stashed changes
 
 namespace TaskDo.Controllers
 {
@@ -142,6 +146,7 @@ namespace TaskDo.Controllers
 
         #endregion
 
+<<<<<<< Updated upstream
         #region JWT
         private string GenerateJwtToken(User user, string role)
         {
@@ -176,6 +181,8 @@ namespace TaskDo.Controllers
 
         #endregion
 
+=======
+>>>>>>> Stashed changes
         #region Logout
 
         [HttpPost("logout")]
@@ -202,30 +209,43 @@ namespace TaskDo.Controllers
 
         #endregion
 
+        #region JWT
+        private string GenerateJwtToken(User user, string role)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes("ASDFGHJKLQWERTYUIOPZXCVBNM1234567890");
+            var expiryDate = DateTime.UtcNow.AddHours(24);
+
+            var claims = new List<Claim>
+    {
+        new Claim("id", user.Id.ToString()),
+        new Claim("role", role)
+    };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = expiryDate,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenStr = tokenHandler.WriteToken(token);
+            _context.JsonWebTokens.Add(new JsonWebToken()
+            {
+                Token = tokenStr,
+                UserId = user.Id,
+                ExpiryDate = expiryDate
+            });
+            _context.SaveChanges();
+            return tokenStr;
+        }
+
         [HttpGet("decode_token")]
         public string GetTokenAsJson(string token)
         {
-            string secret = "ASDFGHJKLQWERTYUIOPZXCVBNM1234567890";
-            var key = Encoding.ASCII.GetBytes(secret);
-            var handler = new JwtSecurityTokenHandler();
-            var validations = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false
-            };
-
-            var claimsPrincipal = handler.ValidateToken(token, validations, out var tokenSecure);
-
-            var claims = claimsPrincipal.Claims
-                .Where(c => !string.IsNullOrEmpty(c.Type) && !string.IsNullOrEmpty(c.Value))
-                .ToDictionary(c => c.Type, c => c.Value);
-
-            var tokenDataAsSimplifiedJson = JsonSerializer.Serialize(claims);
-
-            return tokenDataAsSimplifiedJson;
+            return JwtDecoder.GetTokenAsJson(token);
         }
-
+        #endregion
     }
 }
