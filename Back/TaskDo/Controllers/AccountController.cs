@@ -21,6 +21,8 @@ namespace TaskDo.Controllers
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
+        #region Injection
+
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly ApplicationDbContext _context;
@@ -30,6 +32,8 @@ namespace TaskDo.Controllers
             _signInManager = signInManager;
             _context = context;
         }
+
+        #endregion
 
         #region Register
 
