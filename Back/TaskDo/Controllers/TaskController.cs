@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using TaskDo.Data;
@@ -12,6 +11,9 @@ using TaskDo.Models.Tasks;
 
 namespace TaskDo.Controllers
 {
+    /// <summary>
+    /// Controller for managing Tasks
+    /// </summary>
     [ApiController]
     [Route("api/tasks")]
     public class TaskController : ControllerBase
@@ -34,6 +36,11 @@ namespace TaskDo.Controllers
 
         #region Create
 
+        /// <summary>
+        /// Action for creating Tasks
+        /// </summary>
+        /// <param name="taskModel">Task Model</param>
+        /// <returns>200 for success or 400 for model errors and incorrect dates</returns>
         [HttpPost("create")]
         [Authorize]
         public async Task<IActionResult> CreateTask(TaskModel taskModel)
@@ -71,7 +78,6 @@ namespace TaskDo.Controllers
                 status = 1;
             }
             
-
             try
             {
                 var task = new Data.Entities.Task()
@@ -123,6 +129,11 @@ namespace TaskDo.Controllers
 
         #region Delete
 
+        /// <summary>
+        /// Action for deleting Tasks
+        /// </summary>
+        /// <param name="id">Task ID</param>
+        /// <returns>204 for successful deletion or 404 if Task not found</returns>
         [HttpDelete("delete")]
         public IActionResult DeleteTask(Guid id)
         {
@@ -143,6 +154,12 @@ namespace TaskDo.Controllers
 
         #region Edit
 
+        /// <summary>
+        /// Action for editing Tasks
+        /// </summary>
+        /// <param name="id">Task ID</param>
+        /// <param name="updatedTask">Updated Task</param>
+        /// <returns>200 for success or 404 if task not found or 400 for invalid model or dates</returns>
         [HttpPut("edit")]
         public IActionResult UpdateTask(Guid id, TaskModel updatedTask)
         {
@@ -151,6 +168,11 @@ namespace TaskDo.Controllers
             if (task == null)
             {
                 return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
             }
 
             DateTime startDate = DateTime.Now;
@@ -196,6 +218,10 @@ namespace TaskDo.Controllers
 
         #region Get Tasks
 
+        /// <summary>
+        /// Get all Tasks
+        /// </summary>
+        /// <returns>List of Tasks</returns>
         [HttpGet("all")]
         public IActionResult GetAllTasks()
         {
@@ -203,6 +229,11 @@ namespace TaskDo.Controllers
             return Ok(tasks);
         }
 
+        /// <summary>
+        /// Get Task by ID
+        /// </summary>
+        /// <param name="taskId">Task ID</param>
+        /// <returns>Task or 404 if Task not found</returns>
         [HttpGet("get_by_id")]
         public async Task<IActionResult> GetTaskById(Guid taskId)
         {
