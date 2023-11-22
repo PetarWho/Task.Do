@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -12,30 +12,27 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 
 function AdminTasks() {
-  const tasks = [
-    {
-      id: 1,
-      title: "Task 1",
-      description: "Description 1",
-      start: new Date().setHours(9, 0, 0, 0),
-      end: new Date().setHours(10, 0, 0, 0),
-    },
-    {
-      id: 2,
-      title: "Task 2",
-      description: "Description 2",
-      start: new Date().setHours(12, 0, 0, 0),
-      end: new Date().setHours(13, 0, 0, 0),
-    },
-    {
-      id: 3,
-      title: "Task 3",
-      description: "Description 3",
-      start: new Date().setHours(17, 0, 0, 0),
-      end: new Date().setHours(18, 0, 0, 0),
-    },
-  ];
+  const [tasks, setTasks] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await fetch(`https://localhost:7136/api/tasks/all`);
+        if (response.ok) {
+          const data = await response.json();
+          setTasks(data);
+        } else {
+          console.error("Failed to fetch tasks");
+        }
+      } catch (error) {
+        console.error("An error occurred while fetching tasks", error);
+      }
+    };
+
+    fetchTasks();
+  }, []);
+
   const createTask = () => {
     navigate("/createTask");
   };
@@ -100,4 +97,5 @@ function AdminTasks() {
     </>
   );
 }
+
 export default AdminTasks;

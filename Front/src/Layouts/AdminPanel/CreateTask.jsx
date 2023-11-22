@@ -66,6 +66,42 @@ const CreateTask = () => {
     setSubTasks(updatedSubTasks);
   };
 
+  const handleCreateTask = async () => {
+    try {
+      
+      const response = await fetch(`https://localhost:7136/api/tasks/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: "Task Title", 
+          description: "Task Description", 
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(), 
+          employees: assignedUsers.map(user => ({ employeeId: user.id })),
+          subtasks: subTasks.map(subtask => ({
+            title: subtask.title,
+            description: subtask.description,
+            requiredNotesCount: subtask.requiredNotesCount || 0,
+            requiredPhotosCount: subtask.requiredPhotosCount || 0,
+          })),
+        }),
+      });
+
+      if (response.ok) {
+        // Task created successfully
+        console.log("Task created successfully");
+        // You may want to redirect or handle success in some way
+      } else {
+        // Handle error
+        console.error("Failed to create task");
+      }
+    } catch (error) {
+      console.error("An error occurred while creating the task", error);
+    }
+  };
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
@@ -188,6 +224,7 @@ const CreateTask = () => {
           <Button
             variant="outlined"
             style={{ color: "green", borderColor: "green" }}
+            onClick={handleCreateTask}
           >
             Done
           </Button>
