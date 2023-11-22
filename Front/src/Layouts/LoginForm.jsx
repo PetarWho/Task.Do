@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import LoginWidget from "../Auth/LoginWidget";
+import { Link } from 'react-router-dom';
+import {Typography} from '@mui/material';
 
 function LoginForm() {
   const [message, setMessage] = useState("");
@@ -23,7 +25,8 @@ function LoginForm() {
         }
       } else {
         const answer = await response.json();
-        localStorage.setItem("authToken", answer.Token);
+        console.log(answer)
+        localStorage.setItem("authToken", answer.token);
         setMessage("You are logged");
       }
     } catch (error) {
@@ -38,6 +41,12 @@ function LoginForm() {
         <LoginWidget onLogin={handleLogin} />
       </div>
       <div>{message && <p>{message}</p>}</div>
+      <Typography variant="body2" mt={2}>
+        You don't have an account?{' '}
+        <Link to="/Register" style={{ color: 'inherit' }}>
+          Sign up
+        </Link>
+      </Typography>
     </div>
   );
 }

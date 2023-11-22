@@ -1,6 +1,8 @@
 import React, {useState} from "react";
 import RegisterWidget from "../Auth/RegisterWidget";
 import { useNavigate } from "react-router-dom";
+import { Link } from 'react-router-dom';
+import {Typography} from '@mui/material';
 
 function RegistrationForm() {
   const handleRegistration = (data) => {
@@ -39,6 +41,12 @@ function RegistrationForm() {
       <h2>Registration</h2>
       <RegisterWidget onRegister={(data) => handleRegistration(data)} />
       <div>{message && <p>{message}</p>}</div>
+      <Typography variant="body2" mt={2}>
+        Already have an account?{' '}
+        <Link to="/Login" style={{ color: 'inherit' }}>
+          Sign in
+        </Link>
+      </Typography>
     </div>
     
   );

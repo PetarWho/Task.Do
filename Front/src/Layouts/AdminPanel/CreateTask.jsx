@@ -9,6 +9,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { Link, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import Button from "@mui/material/Button";
+import { Token } from "@mui/icons-material";
 
 const CreateTask = () => {
   const [startDate, setStartDate] = useState(new Date());
@@ -64,37 +65,59 @@ const CreateTask = () => {
       (subtask) => subtask.id !== subTaskId
     );
     setSubTasks(updatedSubTasks);
-  };
-
-  const handleCreateTask = async () => {
+  const handleDeleteSubTask = async (subTaskId) => {
+    subTaskId = "550e8400-e29b-41d4-a716-446655440000"; //Hardcode example for Guid Id
     try {
-      
-      const response = await fetch(`https://localhost:7136/api/tasks/create`, {
-        method: "POST",
+      const apiUrl = `https://localhost:7136/api/subtasks/delete?id=${subTaskId}`;
+      const response = await fetch(apiUrl, {
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          title: "Task Title", 
-          description: "Task Description", 
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(), 
-          employees: assignedUsers.map(user => ({ employeeId: user.id })),
-          subtasks: subTasks.map(subtask => ({
-            title: subtask.title,
-            description: subtask.description,
-            requiredNotesCount: subtask.requiredNotesCount || 0,
-            requiredPhotosCount: subtask.requiredPhotosCount || 0,
-          })),
-        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+    } catch (error) {
+      console.error("Error deleting subtask:", error);
+    }
+  };
+
+  const handleCreateTask = async () => {
+    const requestData = {
+      title: "Task Title2",
+      description: "Task Description2",
+      startDate: "10/01/2023",
+      endDate: "10/02/2023",
+      subtasks: [
+        {
+          title: "Subtask Title2",
+          description: "Subtask Description2",
+          requiredPhotosCount: 1,
+          requiredNotesCount: 1,
+        },
+      ],
+      employees: [
+        {
+          employeeId: "9a5758dc-5eb8-426a-ae86-d86b1fddfbff",
+        },
+      ],
+    };
+
+    try {
+      const response = await fetch("https://localhost:7136/api/tasks/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify(requestData),
       });
 
       if (response.ok) {
-        // Task created successfully
-        console.log("Task created successfully");
-        // You may want to redirect or handle success in some way
+        console.log("Task created successfully:");
       } else {
-        // Handle error
         console.error("Failed to create task");
       }
     } catch (error) {
@@ -178,7 +201,7 @@ const CreateTask = () => {
               }}
             >
               <Link
-                to={`/subtask/${subtask.id}`}
+                to={`/createSubtask`}
                 state={{ subtask: subtask }}
                 style={{
                   textDecoration: "none",
@@ -279,5 +302,6 @@ const CreateTask = () => {
     </Grid>
   );
 };
+}
 
 export default CreateTask;
