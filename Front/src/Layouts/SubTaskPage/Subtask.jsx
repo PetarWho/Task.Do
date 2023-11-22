@@ -16,24 +16,35 @@ function Subtask() {
   const handleFile = (file) => {
     setFileName(file.name);
   };
-  const subtask = location.state
-    ? location.state.subtask
-    : { title: "", description: "" };
+  // const subtask = location.state
+  //   ? location.state.subtask
+  //   : { title: "", description: "" };
 
   const [isLoading, setIsLoading] = useState(true);
+  const[subTasks,setSubTasks] = useState([]);
 
   useEffect(() => {
-    // Simulating an asynchronous operation (e.g., data fetching)
     const fetchData = async () => {
-      // Assume some asynchronous operation that takes time
-      await new Promise((resolve) => setTimeout(resolve, 200));
-
-      // After the asynchronous operation is complete, set isLoading to false
+      try {
+        const taskId = '550e8400-e29b-41d4-a716-446655440000';  //Hardcode example for Guid Id
+        const apiUrl = `https://localhost:7136/api/subtasks/all?taskId=${taskId}`;
+        const response = await fetch(apiUrl);
+  
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+  
+        const data = await response.json();
+        setSubTasks(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } 
       setIsLoading(false);
     };
-
+  
     fetchData();
-  }, []); // The empty dependency array ensures the effect runs once after the initial render
+  }, []);
+  
 
   if (isLoading) {
     return <SpinnerLoading />;
@@ -55,12 +66,12 @@ function Subtask() {
             </Box>
             <Box>
               <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-                {subtask.title}
+                {subTasks.title}
               </Typography>
             </Box>
           </Box>
           <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-            {subtask.description}
+            {subTasks.description}
           </Typography>
           <FileUploader handleFile={handleFile} />
           {fileName ? <p>Uploaded file: {fileName}</p> : null}

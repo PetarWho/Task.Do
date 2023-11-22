@@ -59,11 +59,23 @@ const CreateTask = () => {
     const updatedUsers = assignedUsers.filter((user) => user.id !== userId);
     setAssignedUsers(updatedUsers);
   };
-  const handleDeleteSubTask = (subTaskId) => {
-    const updatedSubTasks = subTasks.filter(
-      (subtask) => subtask.id !== subTaskId
-    );
-    setSubTasks(updatedSubTasks);
+  const handleDeleteSubTask = async (subTaskId) => {
+    subTaskId = '550e8400-e29b-41d4-a716-446655440000'; //Hardcode example for Guid Id
+    try {
+      const apiUrl = `https://localhost:7136/api/subtasks/delete?id=${subTaskId}`;
+      const response = await fetch(apiUrl, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+    } catch (error) {
+      console.error('Error deleting subtask:', error);
+    }
   };
 
   const handleCreateTask = async () => {
