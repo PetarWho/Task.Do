@@ -6,16 +6,29 @@ using TaskDo.Data;
 
 namespace TaskDo.Controllers
 {
+    /// <summary>
+    /// Controller for managing users 
+    /// </summary>
+
     [ApiController]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
+        #region Injection
         private readonly ApplicationDbContext context;
         public UsersController(ApplicationDbContext _context)
         {
             context = _context;
         }
 
+        #endregion
+
+        #region Get Users
+
+        /// <summary>
+        /// Get all users from database 
+        /// </summary>
+        /// <returns></returns>
         //[Authorize(JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("all")]
         public IActionResult GetAllUsers()
@@ -25,6 +38,10 @@ namespace TaskDo.Controllers
             return Ok(users);
         }
 
+        /// <summary>
+        /// Get all employees from database
+        /// </summary>
+        /// <returns>List of employees</returns>
         [HttpGet("all_employees")]
         public IActionResult GetAllEmployees()
         {
@@ -44,7 +61,7 @@ namespace TaskDo.Controllers
         [HttpGet("get_by_name")]
         public IActionResult GetUserByName(string name)
         {
-            var users = context.Users.Where(x => x.UserName == name).ToList();
+            var users = context.Users.Where(x => x.UserName.ToLower().Contains(name.ToLower())).ToList();
 
             return Ok(users);
         }
@@ -56,5 +73,7 @@ namespace TaskDo.Controllers
 
             return Ok(user);
         }
+
+        #endregion
     }
 }
