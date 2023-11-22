@@ -11,14 +11,17 @@ import CreateSubtask from "./Layouts/AdminPanel/CreateSubTask";
 import AdminCalendar from "./Layouts/AdminPanel/AdminTaskCalendar";
 import RegistrationForm from "./Layouts/RegistrationForm";
 import LoginForm from "./Layouts/LoginForm";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 function App() {
   return (
     <div className="App">
-      <Header />
+      
       <BrowserRouter>
+      <Header />
         <Routes>
-          <Route path="/" element={<LoginForm />} />
+          <Route path="/" element={<RegistrationForm />} />
+          <Route path="/Login" element={<LoginForm />} />
           <Route path="/adminTasks" element={<AdminTasks />} />
           <Route path="/createTask" element={<CreateTask />} />
           <Route path="/createSubtask" element={<CreateSubtask />} />

@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import LoginWidget from "../Auth/LoginWidget";
 
 function LoginForm() {
+  const [message, setMessage] = useState("");
 
   const handleLogin = async (data) => {
     try {
-      const response = await fetch(`https://localhost:7136/api/Account/login`, {
+      const response = await fetch("https://localhost:7136/api/Account/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -14,12 +15,17 @@ function LoginForm() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const errorText = await response.text();
+        if (response.status === 400) {
+          setMessage(errorText);
+        } else {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+      } else {
+        const answer = await response.json();
+        localStorage.setItem("authToken", answer.Token);
+        setMessage("You are logged");
       }
-
-      const answer = await response.json();
-      console.log("Login successful:", answer);
-      localStorage.setItem("token", answer.token);
     } catch (error) {
       console.error("Login failed:", error.message);
     }
@@ -31,6 +37,7 @@ function LoginForm() {
       <div>
         <LoginWidget onLogin={handleLogin} />
       </div>
+      <div>{message && <p>{message}</p>}</div>
     </div>
   );
 }
