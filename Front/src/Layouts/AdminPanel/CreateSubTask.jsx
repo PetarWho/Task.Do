@@ -28,7 +28,7 @@ function CreateSubtask() {
       isRequired: isRequired,
     };
 
-    navigate("/createTask", { state: { submittedSubtask: subtaskData } });
+    navigate("/adminTasks", { state: { submittedSubtask: subtaskData } });
   };
 
   return (

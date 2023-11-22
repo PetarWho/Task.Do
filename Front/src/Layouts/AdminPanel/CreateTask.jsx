@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
-import { Grid, TextField, Typography } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography } from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
@@ -36,6 +36,20 @@ const CreateTask = () => {
     },
   ]);
   const [submittedSubtask, setSubmittedSubtask] = useState(null);
+
+  //for adding a user ot the task
+  const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
+  const [newUserName, setNewUserName] = useState('');
+
+  const openAddUserDialog = () => {
+    setAddUserDialogOpen(true);
+  };
+
+  const closeAddUserDialog = () => {
+    setAddUserDialogOpen(false);
+    setNewUserName(''); // Clear the input when the dialog is closed
+  };
+
 
   useEffect(() => {
     const receivedData = location.state?.submittedSubtask;
@@ -113,6 +127,60 @@ const CreateTask = () => {
       console.error("An error occurred while creating the task", error);
     }
   };
+
+  const fetchUsersFromDatabase = async () => {
+    try {
+      const apiUrl = 'https://localhost:7136/api/Users/all'; // Change the URL to your actual API endpoint
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      setAssignedUsers(data); // Assuming your API returns an array of users
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+
+  const handleAddUsers = () => {
+    fetchUsersFromDatabase();
+  };
+
+  const handleAddUser = async () => {
+    try {
+      const apiUrl = `https://localhost:7136/api/Users/check_existence?name=${newUserName}`;
+      const response = await fetch(apiUrl);
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
+      const userExists = await response.json();
+  
+      if (userExists) {
+        // User exists, add the new user to the state
+        const newUserId = assignedUsers.length + 1; // Replace with your logic to generate a unique ID
+        const newUser = {
+          id: newUserId,
+          username: newUserName,
+        };
+        setAssignedUsers((prevUsers) => [...prevUsers, newUser]);
+      } else {
+        // User does not exist in the database, handle accordingly (show an error message, etc.)
+        console.error('User does not exist in the database');
+      }
+  
+      // Close the dialog
+      closeAddUserDialog();
+    } catch (error) {
+      console.error('Error checking user existence:', error);
+    }
+  };
+  
+  
+
+  
 
   return (
     <Grid container spacing={2}>
@@ -282,12 +350,32 @@ const CreateTask = () => {
         >
           <Button
             variant="outlined"
-            style={{ color: "green", borderColor: "green" }}
+            style={{ color: 'green', borderColor: 'green' }}
+            onClick={openAddUserDialog}
           >
-            Add
+            Add Users
           </Button>
         </Grid>
       </Grid>
+      {/* Add User Dialog */}
+      <Dialog open={isAddUserDialogOpen} onClose={closeAddUserDialog}>
+        <DialogTitle>Add User</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Username"
+            variant="outlined"
+            fullWidth
+            value={newUserName}
+            onChange={(e) => setNewUserName(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeAddUserDialog}>Cancel</Button>
+          <Button onClick={handleAddUser} color="primary">
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Grid>
   );
 };
