@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using TaskDo.Data;
@@ -15,6 +16,8 @@ namespace TaskDo.Controllers
     [Route("api/tasks")]
     public class TaskController : ControllerBase
     {
+        #region Injection
+
         private readonly ApplicationDbContext _context;
         private readonly JsonSerializerOptions _jsonOptions;
         public TaskController(ApplicationDbContext context)
@@ -26,6 +29,10 @@ namespace TaskDo.Controllers
                 WriteIndented = true
             };
         }
+
+        #endregion
+
+        #region Create
 
         [HttpPost("create")]
         [Authorize]
@@ -112,6 +119,10 @@ namespace TaskDo.Controllers
             }
         }
 
+        #endregion
+
+        #region Delete
+
         [HttpDelete("delete")]
         public IActionResult DeleteTask(Guid id)
         {
@@ -127,6 +138,10 @@ namespace TaskDo.Controllers
 
             return NoContent(); 
         }
+
+        #endregion
+
+        #region Edit
 
         [HttpPut("edit")]
         public IActionResult UpdateTask(Guid id, TaskModel updatedTask)
@@ -177,6 +192,10 @@ namespace TaskDo.Controllers
             return Ok("Edit Successful"); 
         }
 
+        #endregion
+
+        #region Get Tasks
+
         [HttpGet("all")]
         public IActionResult GetAllTasks()
         {
@@ -196,5 +215,31 @@ namespace TaskDo.Controllers
             var serializedTask = JsonSerializer.Serialize(task, _jsonOptions);
             return Ok(serializedTask);
         }
+
+        /// <summary>
+        /// Retrieves tasks based on pagination.
+        /// </summary>
+        /// <param name="numberOfTasksPerPage">Number of tasks per page.</param>
+        /// <param name="page">Current page number for pagination.</param>
+        /// <param name="order">Optional. Order of the tasks (0 - by StartDate, 1 - by EndDate).</param>
+        /// <returns>Returns tasks based on pagination.</returns>
+        [HttpGet("get_n_per_page")]
+        public async Task<IActionResult> GetTasksPerPage(int numberOfTasksPerPage, int page, byte? order = 0)
+        {
+            var tasks = new List<Data.Entities.Task>();
+            switch (order)
+            {
+                default:
+                case 0:
+                    tasks = await _context.Tasks.OrderBy(x=>x.StartDate).Skip((page - 1) * numberOfTasksPerPage).Take(numberOfTasksPerPage).ToListAsync();
+                    break;
+                case 1:
+                    tasks = await _context.Tasks.OrderBy(x => x.EndDate).Skip((page - 1) * numberOfTasksPerPage).Take(numberOfTasksPerPage).ToListAsync();
+                    break;
+            }
+            return Ok(tasks);
+        }
+
+        #endregion
     }
 }
