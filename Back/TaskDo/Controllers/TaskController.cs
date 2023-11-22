@@ -219,7 +219,7 @@ namespace TaskDo.Controllers
         #region Get Tasks
 
         /// <summary>
-        /// Get all Tasks
+        /// Get all Tasks (TEST PURPOSES ONLY... use get_n_per_page instead)
         /// </summary>
         /// <returns>List of Tasks</returns>
         [HttpGet("all")]
@@ -268,6 +268,16 @@ namespace TaskDo.Controllers
                     tasks = await _context.Tasks.OrderBy(x => x.EndDate).Skip((page - 1) * numberOfTasksPerPage).Take(numberOfTasksPerPage).ToListAsync();
                     break;
             }
+
+            foreach (var task in tasks)
+            {
+                if (task.Status == StatusEnum.Current && task.EndDate <= DateTime.Now)
+                {
+                    task.Status = StatusEnum.Uncompleted;
+                    await _context.SaveChangesAsync();
+                }
+            }
+
             return Ok(tasks);
         }
 
