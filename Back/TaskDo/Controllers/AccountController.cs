@@ -23,6 +23,10 @@ namespace TaskDo.Controllers
     {
         #region Injection
 
+        /// <summary>
+        /// 
+        /// </summary>
+
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly ApplicationDbContext _context;
