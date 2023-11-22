@@ -11,10 +11,15 @@ using TaskDo.Models.Tasks;
 
 namespace TaskDo.Controllers
 {
+    /// <summary>
+    /// Controller for managing Tasks
+    /// </summary>
     [ApiController]
     [Route("api/tasks")]
     public class TaskController : ControllerBase
     {
+        #region Injection
+
         private readonly ApplicationDbContext _context;
         private readonly JsonSerializerOptions _jsonOptions;
         public TaskController(ApplicationDbContext context)
@@ -27,6 +32,15 @@ namespace TaskDo.Controllers
             };
         }
 
+        #endregion
+
+        #region Create
+
+        /// <summary>
+        /// Action for creating Tasks
+        /// </summary>
+        /// <param name="taskModel">Task Model</param>
+        /// <returns>200 for success or 400 for model errors and incorrect dates</returns>
         [HttpPost("create")]
         [Authorize]
         public async Task<IActionResult> CreateTask(TaskModel taskModel)
@@ -64,7 +78,6 @@ namespace TaskDo.Controllers
                 status = 1;
             }
             
-
             try
             {
                 var task = new Data.Entities.Task()
@@ -112,6 +125,15 @@ namespace TaskDo.Controllers
             }
         }
 
+        #endregion
+
+        #region Delete
+
+        /// <summary>
+        /// Action for deleting Tasks
+        /// </summary>
+        /// <param name="id">Task ID</param>
+        /// <returns>204 for successful deletion or 404 if Task not found</returns>
         [HttpDelete("delete")]
         public IActionResult DeleteTask(Guid id)
         {
@@ -128,6 +150,16 @@ namespace TaskDo.Controllers
             return NoContent(); 
         }
 
+        #endregion
+
+        #region Edit
+
+        /// <summary>
+        /// Action for editing Tasks
+        /// </summary>
+        /// <param name="id">Task ID</param>
+        /// <param name="updatedTask">Updated Task</param>
+        /// <returns>200 for success or 404 if task not found or 400 for invalid model or dates</returns>
         [HttpPut("edit")]
         public IActionResult UpdateTask(Guid id, TaskModel updatedTask)
         {
@@ -136,6 +168,11 @@ namespace TaskDo.Controllers
             if (task == null)
             {
                 return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
             }
 
             DateTime startDate = DateTime.Now;
@@ -177,6 +214,14 @@ namespace TaskDo.Controllers
             return Ok("Edit Successful"); 
         }
 
+        #endregion
+
+        #region Get Tasks
+
+        /// <summary>
+        /// Get all Tasks (TEST PURPOSES ONLY... use get_n_per_page instead)
+        /// </summary>
+        /// <returns>List of Tasks</returns>
         [HttpGet("all")]
         public IActionResult GetAllTasks()
         {
@@ -184,6 +229,11 @@ namespace TaskDo.Controllers
             return Ok(tasks);
         }
 
+        /// <summary>
+        /// Get Task by ID
+        /// </summary>
+        /// <param name="taskId">Task ID</param>
+        /// <returns>Task or 404 if Task not found</returns>
         [HttpGet("get_by_id")]
         public async Task<IActionResult> GetTaskById(Guid taskId)
         {
@@ -196,5 +246,41 @@ namespace TaskDo.Controllers
             var serializedTask = JsonSerializer.Serialize(task, _jsonOptions);
             return Ok(serializedTask);
         }
+
+        /// <summary>
+        /// Retrieves tasks based on pagination.
+        /// </summary>
+        /// <param name="numberOfTasksPerPage">Number of tasks per page.</param>
+        /// <param name="page">Current page number for pagination.</param>
+        /// <param name="order">Optional. Order of the tasks (0 - by StartDate, 1 - by EndDate).</param>
+        /// <returns>Returns tasks based on pagination.</returns>
+        [HttpGet("get_n_per_page")]
+        public async Task<IActionResult> GetTasksPerPage(int numberOfTasksPerPage, int page, byte? order = 0)
+        {
+            var tasks = new List<Data.Entities.Task>();
+            switch (order)
+            {
+                default:
+                case 0:
+                    tasks = await _context.Tasks.OrderBy(x=>x.StartDate).Skip((page - 1) * numberOfTasksPerPage).Take(numberOfTasksPerPage).ToListAsync();
+                    break;
+                case 1:
+                    tasks = await _context.Tasks.OrderBy(x => x.EndDate).Skip((page - 1) * numberOfTasksPerPage).Take(numberOfTasksPerPage).ToListAsync();
+                    break;
+            }
+
+            foreach (var task in tasks)
+            {
+                if (task.Status == StatusEnum.Current && task.EndDate <= DateTime.Now)
+                {
+                    task.Status = StatusEnum.Uncompleted;
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            return Ok(tasks);
+        }
+
+        #endregion
     }
 }

@@ -1,14 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using TaskDo.Utils;
 using TaskDo.Data;
 using TaskDo.Data.Entities;
 using TaskDo.Data.Entities.Enums;
 using TaskDo.Models;
+using TaskDo.Utils;
 
 namespace TaskDo.Controllers
 {
@@ -64,7 +60,7 @@ namespace TaskDo.Controllers
 
             if (result.Succeeded)
             {
-                var token = GenerateJwtToken(user, UserTypeEnum.Employee.ToString());
+                var token = JwtUtils.JwtEncoder.GenerateJwtToken(user, UserTypeEnum.Employee.ToString(), _context);
                 return Ok(new { Token = token });
             }
             else
@@ -100,7 +96,7 @@ namespace TaskDo.Controllers
 
             if (result.Succeeded)
             {
-                var token = GenerateJwtToken(user, UserTypeEnum.Manager.ToString());
+                var token = JwtUtils.JwtEncoder.GenerateJwtToken(user, UserTypeEnum.Manager.ToString().ToLower(), _context);
                 return Ok(new { Token = token });
             }
             else
@@ -116,7 +112,7 @@ namespace TaskDo.Controllers
         /// <summary>
         /// Action for logging in
         /// </summary>
-        /// <param name="model">RegisterModel</param>
+        /// <param name="model">LoginModel</param>
         /// <returns>JWT for success or BadRequest for error</returns>
 
         [HttpPost("login")]
@@ -133,7 +129,7 @@ namespace TaskDo.Controllers
 
             if (result.Succeeded)
             {
-                var token = GenerateJwtToken(user, user.UserType.ToString());
+                var token = JwtUtils.JwtEncoder.GenerateJwtToken(user, user.UserType.ToString(), _context);
                 return Ok(new { Token = token });
             }
             else
@@ -147,6 +143,11 @@ namespace TaskDo.Controllers
 
         #region Logout
 
+        /// <summary>
+        /// Action for logging out
+        /// </summary>
+        /// <param name="token">JWT of the user</param>
+        /// <returns>200 if logged out or 404 if token is invalid</returns>
         [HttpPost("logout")]
         public IActionResult Logout(string token)
         {
@@ -171,42 +172,17 @@ namespace TaskDo.Controllers
 
         #endregion
 
-        #region JWT
-        private string GenerateJwtToken(User user, string role)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("ASDFGHJKLQWERTYUIOPZXCVBNM1234567890");
-            var expiryDate = DateTime.UtcNow.AddHours(24);
-
-            var claims = new List<Claim>
-    {
-        new Claim("id", user.Id.ToString()),
-        new Claim("role", role)
-    };
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = expiryDate,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenStr = tokenHandler.WriteToken(token);
-            _context.JsonWebTokens.Add(new JsonWebToken()
-            {
-                Token = tokenStr,
-                UserId = user.Id,
-                ExpiryDate = expiryDate
-            });
-            _context.SaveChanges();
-            return tokenStr;
-        }
-
+        #region Decode JWT
+        
+        /// <summary>
+        /// Decode the token back to readable JSON
+        /// </summary>
+        /// <param name="token">Token as string</param>
+        /// <returns>The decoded token result as JSON</returns>
         [HttpGet("decode_token")]
         public string GetTokenAsJson(string token)
         {
-            return JwtDecoder.GetTokenAsJson(token);
+            return JwtUtils.JwtDecoder.GetTokenAsJson(token);
         }
         #endregion
     }
