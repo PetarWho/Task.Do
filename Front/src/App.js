@@ -20,10 +20,10 @@ function App() {
       <BrowserRouter>
       <Header />
         <Routes>
-          <Route path="/" element={<RegistrationForm />} />
+        <Route path="/" element={<CreateTask />} />
+          <Route path="/taskCalendar" element={<TaskCalendar />} />
           <Route path="/Login" element={<LoginForm />} />
           <Route path="/adminTasks" element={<AdminTasks />} />
-          <Route path="/createTask" element={<CreateTask />} />
           <Route path="/createSubtask" element={<CreateSubtask />} />
           <Route path="/task/:taskId" element={<Task />} />
           <Route path="/subtask/:subtaskId" element={<Subtask />} />
