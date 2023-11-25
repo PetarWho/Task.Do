@@ -103,7 +103,13 @@ namespace TaskDo.Controllers
                 return NotFound("No such task");
             }
 
-            var subtasks = await _context.Subtasks.Where(x => x.TaskId == taskId).ToListAsync();
+            var subtasks = await _context.Subtasks.Include(x => x.Notes).Include(x => x.Images).Where(x => x.TaskId == taskId)
+                .Select(x => new
+                {
+                    x.Id, x.Title, x.RequiredNotesCount, x.RequiredPhotosCount, x.IsFinished, 
+                    NotesCount = x.Notes.Count(), 
+                    PhotosCount = x.Images.Count()
+                }).ToListAsync();
             return Ok(subtasks);
         }
 
@@ -139,7 +145,7 @@ namespace TaskDo.Controllers
         [HttpPost("add_image")]
         public async Task<IActionResult> AddImageToSubtask(Guid subtaskId, string imagePath)
         {
-            var subtask = await _context.Subtasks.Include(x => x.Images).Include(x=>x.Notes).FirstOrDefaultAsync(x => x.Id == subtaskId);
+            var subtask = await _context.Subtasks.Include(x => x.Images).Include(x => x.Notes).FirstOrDefaultAsync(x => x.Id == subtaskId);
             if (subtask == null)
             {
                 return NotFound("Subtask not found");

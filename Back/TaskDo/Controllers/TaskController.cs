@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Globalization;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using TaskDo.Data;
 using TaskDo.Data.Entities;
 using TaskDo.Data.Entities.Enums;
 using TaskDo.Models.Tasks;
+using static TaskDo.Utils.JwtUtils;
 
 namespace TaskDo.Controllers
 {
@@ -77,7 +80,7 @@ namespace TaskDo.Controllers
             {
                 status = 1;
             }
-            
+
             try
             {
                 var task = new Data.Entities.Task()
@@ -147,7 +150,7 @@ namespace TaskDo.Controllers
             _context.Tasks.Remove(task);
             _context.SaveChanges();
 
-            return NoContent(); 
+            return NoContent();
         }
 
         #endregion
@@ -211,7 +214,7 @@ namespace TaskDo.Controllers
 
             _context.SaveChanges();
 
-            return Ok("Edit Successful"); 
+            return Ok("Edit Successful");
         }
 
         #endregion
@@ -243,7 +246,7 @@ namespace TaskDo.Controllers
                 return NotFound("No such task");
             }
 
-            var serializedTask = JsonSerializer.Serialize(task, _jsonOptions);
+            var serializedTask = System.Text.Json.JsonSerializer.Serialize(task, _jsonOptions);
             return Ok(serializedTask);
         }
 
@@ -262,7 +265,7 @@ namespace TaskDo.Controllers
             {
                 default:
                 case 0:
-                    tasks = await _context.Tasks.OrderBy(x=>x.StartDate).Skip((page - 1) * numberOfTasksPerPage).Take(numberOfTasksPerPage).ToListAsync();
+                    tasks = await _context.Tasks.OrderBy(x => x.StartDate).Skip((page - 1) * numberOfTasksPerPage).Take(numberOfTasksPerPage).ToListAsync();
                     break;
                 case 1:
                     tasks = await _context.Tasks.OrderBy(x => x.EndDate).Skip((page - 1) * numberOfTasksPerPage).Take(numberOfTasksPerPage).ToListAsync();
@@ -277,6 +280,34 @@ namespace TaskDo.Controllers
                     await _context.SaveChangesAsync();
                 }
             }
+
+            return Ok(tasks);
+        }
+
+        /// <summary>
+        /// Get all tasks for the given Employee
+        /// </summary>
+        /// <param name="token">The token of the emoployee</param>
+        /// <returns>List of Tasks</returns>
+        [Authorize]
+        [HttpGet("get_employee_tasks")]
+        public IActionResult GetEmployeeTasks()
+        {
+            var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+
+            if (authHeader == null || !authHeader.StartsWith("Bearer "))
+            {
+                return BadRequest("Invalid authorization header");
+            }
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var user = JwtDecoder.GetUserByToken(token, _context);
+            var tasks = _context.Tasks.Where(task => task.EmployeeTasks
+                .Any(employeeTask => employeeTask.EmployeeId == user.Id)).Select(x => new
+                {
+                    x.Id, x.Title, x.Description, x.Status, x.StartDate, x.EndDate
+                }).ToList();
 
             return Ok(tasks);
         }
