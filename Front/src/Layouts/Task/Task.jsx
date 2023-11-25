@@ -1,40 +1,46 @@
 import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import ListItemText from "@mui/material/ListItemText";
 import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
-import CheckSubTask from "@mui/icons-material/CheckBoxOutlineBlank";
-import Button from "@mui/material/Button";
-import { Link } from "react-router-dom";
-import BackButton from "../Utils/BackButton";
+import { useParams, Link } from "react-router-dom";
 import SpinnerLoading from "../Utils/SpinnerLoading";
+import BackButton from "../Utils/BackButton"; // Import BackButton
+import Typography from "@mui/material/Typography"; // Import Typography
+import TableContainer from '@mui/material/TableContainer';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
 
 function Task() {
-  const [tasks, setTasks] = useState([]);
+  const { taskId } = useParams();
   const [isLoading, setIsLoading] = useState(true);
+  const [task, setTask] = useState({ title: "", description: "" });
+  const [subTasks, setSubTasks] = useState([]);
 
   useEffect(() => {
-    const fetchTasks = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`https://localhost:7136/api/tasks/all`);
-        if (response.ok) {
-          const data = await response.json();
-          setTasks(data);
-        } else {
-          console.error("Failed to fetch tasks");
+        const taskResponse = await fetch(`https://localhost:7136/api/tasks/get_by_id?taskId=${taskId}`);
+        const subTasksResponse = await fetch(`https://localhost:7136/api/subtasks/all?taskId=${taskId}`);
+
+        if (!taskResponse.ok || !subTasksResponse.ok) {
+          throw new Error("Network response was not ok");
         }
+
+        const taskData = await taskResponse.json();
+        const subTasksData = await subTasksResponse.json();
+
+        setTask(taskData);
+        setSubTasks(subTasksData);
       } catch (error) {
-        console.error("An error occurred while fetching tasks", error);
-      } finally {
-        setIsLoading(false);
+        console.error("Error fetching data:", error);
       }
+      setIsLoading(false);
     };
 
-    fetchTasks();
-  }, []);
+    fetchData();
+  }, [taskId]);
 
   if (isLoading) {
     return <SpinnerLoading />;
@@ -43,62 +49,69 @@ function Task() {
   return (
     <Box sx={{ flexGrow: 1, maxWidth: "100%" }}>
       <Grid container spacing={1}>
+        {/* BackButton */}
         <Grid item xs={12} md={12}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              width: "52%",
-            }}
-          >
-            <Box sx={{ paddingLeft: "10px" }}>
-              <BackButton />
-            </Box>
-            <Box>
-              <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-                {/* You can display the selected task details here */}
-              </Typography>
-            </Box>
-          </Box>
-          {/* Render the list of tasks */}
-          <List>
-            {tasks.map((task) => (
-              <ListItem
-                key={task.id}
-                sx={{
-                  border: "1px solid rgb(177, 226, 247)",
-                  margin: "10px",
-                  width: "auto",
-                }}
-              >
-                <ListItemAvatar>
-                  <CheckSubTask />
-                </ListItemAvatar>
-                <Link
-                  to={`/task/${task.id}`}
-                  state={{ task: task }}
-                  style={{
-                    textDecoration: "none",
-                    fontFamily: "Arial, sans-serif",
-                  }}
-                >
-                  <ListItemText primary={task.title} />
-                </Link>
-              </ListItem>
-            ))}
-          </List>
+          <BackButton />
+        </Grid>
+
+        {/* Task Title */}
+        <Grid item xs={12} md={12}>
+          <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+            {task.title}
+          </Typography>
+        </Grid>
+
+        {/* Task Description */}
+        <Grid item xs={12} md={12}>
+          <Typography sx={{ mt: 4, mb: 2 }} variant="body1" component="div">
+            {task.description}
+          </Typography>
+        </Grid>
+
+        {/* Display Subtasks in a table */}
+        <Grid item xs={12} md={12}>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{ paddingLeft: '40px' }}>Subtask Title</TableCell>
+                  <TableCell align="center">Notes</TableCell>
+                  <TableCell align="center">Photos</TableCell>
+                  <TableCell align="center">Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {subTasks.map((subTask) => (
+                  <TableRow key={subTask.id}>
+                    <TableCell style={{ paddingLeft: '40px' }}>
+                      <Link to={{ pathname: `/subtask/${subTask.id}`, state: { subtaskId: subTask.id } }}>
+                        {subTask.title}
+                      </Link>
+                    </TableCell>
+                    <TableCell align="center">
+                      {`${subTask.notesCount}/${subTask.requiredNotesCount}`}
+                    </TableCell>
+                    <TableCell align="center">
+                      {`${subTask.photosCount}/${subTask.requiredPhotosCount}`}
+                    </TableCell>
+                    <TableCell align="center">
+                      <span
+                        style={{
+                          fontWeight: subTask.isFinished ? "bold" : "normal",
+                          color: subTask.isFinished ? "green" : "inherit",
+                        }}
+                      >
+                        {subTask.isFinished ? "Completed" : "Incomplete"}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Grid>
       </Grid>
-      <Button
-        variant="outlined"
-        disabled
-        style={{ color: "green", borderColor: "green" }}
-      >
-        Done
-      </Button>
     </Box>
   );
 }
-
 export default Task;

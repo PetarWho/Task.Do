@@ -1,22 +1,17 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import RegisterWidget from "../Auth/RegisterWidget";
 import { useNavigate } from "react-router-dom";
 import { Link } from 'react-router-dom';
-import {Typography} from '@mui/material';
+import { Typography } from '@mui/material';
 
 function RegistrationForm() {
-  const handleRegistration = (data) => {
-    const { value, ...dataWithoutValue } = data;
-    const endpoint = value === 0 ? "employee" : "manager";
-    handleRegister(endpoint,dataWithoutValue)
-  };
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleRegister = async (endpoint, data) => {
+  const handleRegistration = async (data) => {
     try {
       const response = await fetch(
-        `https://localhost:7136/api/Account/register/${endpoint}`,
+        `https://localhost:7136/api/Account/register/employee`,
         {
           method: "POST",
           headers: {
@@ -29,8 +24,11 @@ function RegistrationForm() {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      setMessage("Registration successful!")
-      navigate("/Login");
+
+      const answer = await response.json();
+      localStorage.setItem("authToken", answer.token);
+      setMessage("Registration successful!");
+      navigate('/');
     } catch (error) {
       console.error("Registration failed:", error.message);
     }
@@ -39,7 +37,7 @@ function RegistrationForm() {
   return (
     <div>
       <h2>Registration</h2>
-      <RegisterWidget onRegister={(data) => handleRegistration(data)} />
+      <RegisterWidget onRegister={handleRegistration} />
       <div>{message && <p>{message}</p>}</div>
       <Typography variant="body2" mt={2}>
         Already have an account?{' '}
@@ -48,7 +46,6 @@ function RegistrationForm() {
         </Link>
       </Typography>
     </div>
-    
   );
 }
 

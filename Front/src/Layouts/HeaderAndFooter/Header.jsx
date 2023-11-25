@@ -38,11 +38,12 @@ function Header() {
     }
   };
 
+  const authToken = localStorage.getItem('authToken');
+
   const handleLogout = async () => {
-    const currentToken = localStorage.getItem("token");
     try {
       const response = await fetch(
-        `https://localhost:7136/api/Account/logout?token=${encodeURIComponent(currentToken)}`,
+        `https://localhost:7136/api/Account/logout?token=${encodeURIComponent(authToken)}`,
         {
           method: "POST",
           headers: {
@@ -50,10 +51,11 @@ function Header() {
           },
         }
       );
-  
+
       if (response.ok) {
-        console.log("You are logout successfully!");
-        localStorage.clear(currentToken)
+        console.log("Successful logout!");
+        localStorage.clear(authToken)
+        navigate("/")
       } else {
         console.log("Error");
       }
@@ -61,13 +63,24 @@ function Header() {
       console.error("Error logging out:", error);
     }
   };
-  
+
+  const navigateToLogin = () => {
+    navigate("/login");
+  };
+
+  const isLoggedIn = authToken !== null;
 
   return (
     <AppBar position="static" sx={{ backgroundColor: "rgb(177, 226, 247)" }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              flexGrow: 1,
+            }}
+          >
             <img
               src={process.env.PUBLIC_URL + "/diadraw-logo.png"}
               alt="Logo"
@@ -88,71 +101,63 @@ function Header() {
             >
               DiaDo
             </Typography>
-          </Box>
-          {/* navbar for admins */}
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: { md: "flex" },
-              justifyContent: "flex-end",
-            }}
-          >
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={() => navNavigate(page)}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
+            </Box>
+            <Box>
+            {isLoggedIn ? (
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar
+                    alt="Remy Sharp"
+                    src="/static/images/avatar/2.jpg"
+                    sx={{ backgroundColor: "rgb(255, 74, 47)" }}
+                  />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Button onClick={navigateToLogin} sx={{ ml: "auto" }}>
+                Sign In
               </Button>
-            ))}
-          </Box>
-
-          <Box sx={{ flexGrow: 1 }} />
+            )}
+            </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Typography
-              name="someDate"
-              label="Some Date"
-              type="date"
-              defaultValue={date.someDate}
-            />
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar
-                  alt="Remy Sharp"
-                  src="/static/images/avatar/2.jpg"
-                  sx={{ backgroundColor: "rgb(255, 74, 47)" }}
+            {isLoggedIn && (
+              <>
+                <Typography
+                  name="someDate"
+                  label="Some Date"
+                  type="date"
+                  defaultValue={date.someDate}
                 />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem
-                  key={setting}
-                  onClick={
-                    setting === "Logout" ? handleLogout : handleCloseUserMenu
-                  }
+                <Menu
+                  sx={{ mt: "45px" }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
                 >
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
+                  {settings.map((setting) => (
+                    <MenuItem
+                      key={setting}
+                      onClick={
+                        setting === "Logout" ? handleLogout : handleCloseUserMenu
+                      }
+                    >
+                      <Typography textAlign="center">{setting}</Typography>
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </>
+            )}
           </Box>
         </Toolbar>
       </Container>
