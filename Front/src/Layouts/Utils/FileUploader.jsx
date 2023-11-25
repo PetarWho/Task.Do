@@ -2,10 +2,10 @@ import { useRef } from "react";
 import Button from "@mui/material/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
-export const FileUploader = ({ handleFile }) => {
+const FileUploader = ({ handleFile }) => {
   const hiddenFileInput = useRef(null);
 
-  const handleClick = (event) => {
+  const handleClick = () => {
     hiddenFileInput.current.click();
   };
 
@@ -13,6 +13,7 @@ export const FileUploader = ({ handleFile }) => {
     const fileUploaded = event.target.files[0];
     handleFile(fileUploaded);
   };
+
   return (
     <>
       <Button
@@ -32,3 +33,5 @@ export const FileUploader = ({ handleFile }) => {
     </>
   );
 };
+
+export default FileUploader; 

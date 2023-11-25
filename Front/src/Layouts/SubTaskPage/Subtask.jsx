@@ -1,102 +1,130 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import { useLocation } from "react-router-dom";
-import Button from "@mui/material/Button";
-import { FileUploader } from "../Utils/FileUploader";
-import { useState } from "react";
 import BackButton from "../Utils/BackButton";
+import FileUploader from "../Utils/FileUploader";
 import SpinnerLoading from "../Utils/SpinnerLoading";
 import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 function Subtask() {
-  const location = useLocation();
+  const navigate = useNavigate();
+  const subtaskId = useParams();
+  const [subtask, setSubtask] = useState(null);
   const [fileName, setFileName] = useState("");
-  const handleFile = (file) => {
-    setFileName(file.name);
-  };
-  // const subtask = location.state
-  //   ? location.state.subtask
-  //   : { title: "", description: "" };
-
+  const [noteText, setNoteText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const[subTasks,setSubTasks] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchSubtaskData = async () => {
       try {
-        const taskId = '550e8400-e29b-41d4-a716-446655440000';  //Hardcode example for Guid Id
-        const apiUrl = `https://localhost:7136/api/subtasks/all?taskId=${taskId}`;
-        const response = await fetch(apiUrl);
-  
+        const response = await fetch(
+          `https://localhost:7136/api/subtasks/get_by_id?subtaskId=${subtaskId.subtaskId}`
+        );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-  
         const data = await response.json();
-        setSubTasks(data);
+        setSubtask(data);
       } catch (error) {
-        console.error("Error fetching data:", error);
-      } 
+        console.error("Error fetching subtask data:", error);
+      }
       setIsLoading(false);
     };
-  
-    fetchData();
-  }, []);
-  
 
-  if (isLoading) {
+    if (subtaskId) {
+      fetchSubtaskData();
+    }
+  }, [subtaskId]);
+
+  const handleFile = (file) => {
+    setFileName(file.name);
+  
+    const formData = new FormData();
+    formData.append("subtaskId", subtask.id);
+    formData.append("imagePath", file.name);
+    console.log(file);
+    fetch("https://localhost:7136/api/subtasks/add_image", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        if (response.ok) {
+          // Image uploaded successfully, allow the user to add a note now
+          setIsLoading(false);
+        } else {
+          // Handle the error
+        }
+      })
+      .catch((error) => {
+        console.error("Error uploading image:", error);
+      });
+  };
+  
+  const addNote = () => {
+    const formData = new FormData();
+    formData.append("subtaskId", subtask.id);
+    formData.append("noteText", noteText); // Send noteText as formData
+  
+    fetch("https://localhost:7136/api/subtasks/add_note", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        if (response.ok) {
+          navigate(`/task/${subtask.taskId}`);
+        } else {
+          // Handle the error
+        }
+      })
+      .catch((error) => {
+        console.error("Error adding note:", error);
+      });
+  };
+
+  if (!subtask) {
     return <SpinnerLoading />;
   }
+
   return (
     <Box sx={{ flexGrow: 1, maxWidth: "100%" }}>
-      <Grid container spacing={1}>
+      <Grid container spacing={2}>
         <Grid item xs={12} md={12}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              width: "52%",
-            }}
-          >
-            <Box sx={{ paddingLeft: "10px" }}>
-              <BackButton />
-            </Box>
-            <Box>
-              <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-                {subTasks.title}
-              </Typography>
-            </Box>
-          </Box>
-          <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-            {subTasks.description}
-          </Typography>
+          <BackButton />
+        </Grid>
+
+        <Grid item xs={12} md={12}>
+          <Typography variant="h5">{subtask.title}</Typography>
+          <Typography variant="body1">{subtask.description}</Typography>
+        </Grid>
+
+        <Grid item xs={12} md={12}>
           <FileUploader handleFile={handleFile} />
-          {fileName ? <p>Uploaded file: {fileName}</p> : null}
+          {fileName && <p>Uploaded file: {fileName}</p>}
         </Grid>
+
         <Grid item xs={12} md={12}>
-        <TextField
-              id="outlined-multiline-static"
-              label="Notes"
-              multiline
-              rows={6}
-              placeholder="Leave a note"
-              sx={{width: '300px'}}
-            /> 
+          <TextField
+            id="note-text"
+            label="Leave a note"
+            multiline
+            rows={4}
+            variant="outlined"
+            value={noteText}
+            onChange={(e) => setNoteText(e.target.value)}
+          />
         </Grid>
+
         <Grid item xs={12} md={12}>
           <Button
-            variant="outlined"
-            disabled
-            style={{ color: "green", borderColor: "green" }}
-            component="div"
+            variant="contained"
+            onClick={addNote}
+            disabled={!fileName && !noteText}
           >
-            Done
+            Save Note
           </Button>
-          <Box>
-          </Box>
         </Grid>
       </Grid>
     </Box>

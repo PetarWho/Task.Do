@@ -3,6 +3,7 @@ import "./App.css";
 import Task from "./Layouts/Task/Task";
 import Subtask from "./Layouts/SubTaskPage/Subtask";
 import Header from "./Layouts/HeaderAndFooter/Header";
+import Footer from "./Layouts/HeaderAndFooter/Footer";
 import TaskCalendar from "./Layouts/TaskCalendar/TaskCalendar";
 import AdminTasks from "./Layouts/AdminPanel/AdminTasks";
 import CreateTask from "./Layouts/AdminPanel/CreateTask";
@@ -20,7 +21,8 @@ function App() {
       <Header />
         <Routes>
           <Route path="/createTask" element={<CreateTask />} />
-          <Route path="/taskCalendar" element={<TaskCalendar />} />
+          <Route path="/calendar" element={<TaskCalendar />} />
+          <Route path="/adminCalendar" element={<AdminCalendar />} />
           <Route path="/register" element={<RegistrationForm />} />
           <Route path="/Login" element={<LoginForm />} />
           <Route path="/adminTasks" element={<AdminTasks />} />
@@ -29,6 +31,7 @@ function App() {
           <Route path="/subtask/:subtaskId" element={<Subtask />} />
         </Routes>
       </BrowserRouter>
+      <Footer/>
       
     </div>
   );

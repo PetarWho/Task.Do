@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import LoginWidget from "../Auth/LoginWidget";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {Typography} from '@mui/material';
 
 function LoginForm() {
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (data) => {
     try {
@@ -25,9 +26,9 @@ function LoginForm() {
         }
       } else {
         const answer = await response.json();
-        console.log(answer)
         localStorage.setItem("authToken", answer.token);
         setMessage("You are logged");
+        navigate('/');
       }
     } catch (error) {
       console.error("Login failed:", error.message);
