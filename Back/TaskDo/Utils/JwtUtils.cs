@@ -1,4 +1,6 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -43,7 +45,7 @@ namespace TaskDo.Utils
                     .Where(c => !string.IsNullOrEmpty(c.Type) && !string.IsNullOrEmpty(c.Value))
                     .ToDictionary(c => GetKeyFromClaimType(c.Type), c => c.Value);
 
-                var tokenDataAsSimplifiedJson = JsonSerializer.Serialize(claims);
+                var tokenDataAsSimplifiedJson = System.Text.Json.JsonSerializer.Serialize(claims);
 
                 return tokenDataAsSimplifiedJson;
             }
@@ -51,6 +53,24 @@ namespace TaskDo.Utils
             {
                 int lastIndex = claimType.LastIndexOf('/');
                 return lastIndex >= 0 ? claimType.Substring(lastIndex + 1) : claimType;
+            }
+
+            /// <summary>
+            /// Get User by JSON Web Token
+            /// </summary>
+            /// <param name="token">User's token</param>
+            /// <param name="context">DbContext for accessing db</param>
+            /// <returns></returns>
+            /// <exception cref="ArgumentException"></exception>
+            public static User GetUserByToken(string token, ApplicationDbContext context)
+            {
+                var dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(GetTokenAsJson(token));
+                var user = context.Users.FirstOrDefault(x=>x.Id == dictionary["id"]);
+                if (user == null)
+                {
+                    throw new ArgumentException("User not found!");
+                }
+                return user;
             }
         }
 
@@ -97,5 +117,6 @@ namespace TaskDo.Utils
                 return tokenStr;
             }
         }
+
     }
 }
