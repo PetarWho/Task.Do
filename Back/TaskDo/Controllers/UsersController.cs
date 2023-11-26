@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskDo.Data;
+using static TaskDo.Utils.JwtUtils;
 
 namespace TaskDo.Controllers
 {
@@ -86,6 +88,42 @@ namespace TaskDo.Controllers
                 return NotFound("User not found");
 
             return Ok(user);
+        }
+
+
+        /// <summary>
+        /// Get user by token
+        /// </summary>
+        /// <returns>User</returns>
+        [Authorize]
+        [HttpGet("get_by_token")]
+        public IActionResult GetUserByToken()
+        {
+            var token = JwtRetriever.GetTokenFromHeader(HttpContext.Request.Headers);
+            if (token == null) return NotFound("Token was not found");
+
+            var user = JwtDecoder.GetUserByToken(token, context);
+            if (user == null) return NotFound("User was not found");
+
+            return Ok(user);
+
+        }
+
+        /// <summary>
+        /// Get User role by token
+        /// </summary>
+        /// <returns>Role as string</returns>
+        [Authorize]
+        [HttpGet("get_role")]
+        public IActionResult GetUserRoleByToken()
+        {
+            var token = JwtRetriever.GetTokenFromHeader(HttpContext.Request.Headers);
+            if (token == null) return NotFound("Token was not found");
+
+            var decoded = JwtDecoder.GetTokenAsDictionary(token);
+            
+            return Ok(decoded["role"]);
+
         }
 
         #endregion

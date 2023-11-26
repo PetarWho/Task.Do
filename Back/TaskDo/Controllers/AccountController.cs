@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TaskDo.Data;
@@ -5,6 +6,7 @@ using TaskDo.Data.Entities;
 using TaskDo.Data.Entities.Enums;
 using TaskDo.Models;
 using TaskDo.Utils;
+using static TaskDo.Utils.JwtUtils;
 
 namespace TaskDo.Controllers
 {
@@ -12,6 +14,7 @@ namespace TaskDo.Controllers
     /// <summary>
     /// Controller for managing user accounts
     /// </summary>
+
 
     [ApiController]
     [Route("api/[controller]")]
@@ -146,11 +149,14 @@ namespace TaskDo.Controllers
         /// <summary>
         /// Action for logging out
         /// </summary>
-        /// <param name="token">JWT of the user</param>
         /// <returns>200 if logged out or 404 if token is invalid</returns>
+        [Authorize]
         [HttpPost("logout")]
-        public IActionResult Logout(string token)
+        public IActionResult Logout()
         {
+            var token = JwtRetriever.GetTokenFromHeader(HttpContext.Request.Headers);
+            if (token == null) return NotFound("Token not found");
+
             var jwt = _context.JsonWebTokens.FirstOrDefault(t => t.Token == token);
 
             if (jwt == null)

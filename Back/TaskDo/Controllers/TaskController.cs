@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using TaskDo.Data;
 using TaskDo.Data.Entities;
 using TaskDo.Data.Entities.Enums;
@@ -222,14 +223,38 @@ namespace TaskDo.Controllers
         #region Get Tasks
 
         /// <summary>
-        /// Get all Tasks (TEST PURPOSES ONLY... use get_n_per_page instead)
+        /// Get all Tasks
         /// </summary>
         /// <returns>List of Tasks</returns>
         [HttpGet("all")]
-        public IActionResult GetAllTasks()
+        public async Task<IActionResult> GetAllTasks()
         {
-            var tasks = _context.Tasks.OrderBy(x => x.StartDate).ToList();
-            return Ok(tasks);
+            var tasks = await _context.Tasks.Include(x => x.EmployeeTasks).ThenInclude(x => x.Employee)
+                .OrderBy(x => x.StartDate).ToListAsync();
+
+            foreach (var task in tasks)
+            {
+                if (task.Status == StatusEnum.Current && task.EndDate <= DateTime.Now)
+                {
+                    task.Status = StatusEnum.Uncompleted;
+                }
+                else if (task.Status == StatusEnum.Upcoming && task.StartDate <= DateTime.Now)
+                {
+                    task.Status = StatusEnum.Current;
+                }
+            }
+            await _context.SaveChangesAsync();
+
+            var serializedTasks = System.Text.Json.JsonSerializer.Serialize(tasks.Select(x => new
+            {
+                x.Id,
+                x.StartDate,
+                x.EndDate,
+                x.Status,
+                x.Title,
+                Employees = x.EmployeeTasks.Select(y => y.Employee.UserName)
+            }), _jsonOptions);
+            return Ok(serializedTasks);
         }
 
         /// <summary>
@@ -277,9 +302,13 @@ namespace TaskDo.Controllers
                 if (task.Status == StatusEnum.Current && task.EndDate <= DateTime.Now)
                 {
                     task.Status = StatusEnum.Uncompleted;
-                    await _context.SaveChangesAsync();
+                }
+                else if (task.Status == StatusEnum.Upcoming && task.StartDate <= DateTime.Now)
+                {
+                    task.Status = StatusEnum.Current;
                 }
             }
+            await _context.SaveChangesAsync();
 
             return Ok(tasks);
         }
@@ -287,29 +316,50 @@ namespace TaskDo.Controllers
         /// <summary>
         /// Get all tasks for the given Employee
         /// </summary>
-        /// <param name="token">The token of the emoployee</param>
         /// <returns>List of Tasks</returns>
         [Authorize]
         [HttpGet("get_employee_tasks")]
-        public IActionResult GetEmployeeTasks()
+        public async Task<IActionResult> GetEmployeeTasks()
         {
-            var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+            var token = JwtRetriever.GetTokenFromHeader(HttpContext.Request.Headers);
 
-            if (authHeader == null || !authHeader.StartsWith("Bearer "))
+            if (token == null)
             {
-                return BadRequest("Invalid authorization header");
+                return NotFound("Token was not found!");
             }
 
-            var token = authHeader.Substring("Bearer ".Length).Trim();
-
             var user = JwtDecoder.GetUserByToken(token, _context);
-            var tasks = _context.Tasks.Where(task => task.EmployeeTasks
-                .Any(employeeTask => employeeTask.EmployeeId == user.Id)).Select(x => new
-                {
-                    x.Id, x.Title, x.Description, x.Status, x.StartDate, x.EndDate
-                }).ToList();
 
-            return Ok(tasks);
+            if (user == null)
+            {
+                return NotFound("User was not found");
+            }
+
+            var tasks = await _context.Tasks.Where(task => task.EmployeeTasks
+                .Any(employeeTask => employeeTask.EmployeeId == user.Id)).ToListAsync();
+
+            foreach (var task in tasks)
+            {
+                if (task.Status == StatusEnum.Current && task.EndDate <= DateTime.Now)
+                {
+                    task.Status = StatusEnum.Uncompleted;
+                }
+                else if (task.Status == StatusEnum.Upcoming && task.StartDate <= DateTime.Now)
+                {
+                    task.Status = StatusEnum.Current;
+                }
+            }
+            await _context.SaveChangesAsync();
+
+            return Ok(tasks.Select(x => new
+            {
+                x.Id,
+                x.Title,
+                x.Description,
+                x.Status,
+                x.StartDate,
+                x.EndDate
+            }));
         }
 
         #endregion

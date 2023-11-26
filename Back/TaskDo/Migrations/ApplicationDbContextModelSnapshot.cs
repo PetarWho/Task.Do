@@ -167,7 +167,7 @@ namespace TaskDo.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("EmployeesTasks");
+                    b.ToTable("EmployeesTasks", (string)null);
                 });
 
             modelBuilder.Entity("TaskDo.Data.Entities.JsonWebToken", b =>
@@ -186,7 +186,7 @@ namespace TaskDo.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("JsonWebTokens");
+                    b.ToTable("JsonWebTokens", (string)null);
                 });
 
             modelBuilder.Entity("TaskDo.Data.Entities.Note", b =>
@@ -206,7 +206,7 @@ namespace TaskDo.Migrations
 
                     b.HasIndex("SubtaskId");
 
-                    b.ToTable("Notes");
+                    b.ToTable("Notes", (string)null);
                 });
 
             modelBuilder.Entity("TaskDo.Data.Entities.Picture", b =>
@@ -226,7 +226,7 @@ namespace TaskDo.Migrations
 
                     b.HasIndex("SubtaskId");
 
-                    b.ToTable("Pictures");
+                    b.ToTable("Pictures", (string)null);
                 });
 
             modelBuilder.Entity("TaskDo.Data.Entities.Subtask", b =>
@@ -269,7 +269,7 @@ namespace TaskDo.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Subtasks");
+                    b.ToTable("Subtasks", (string)null);
                 });
 
             modelBuilder.Entity("TaskDo.Data.Entities.Task", b =>
@@ -297,7 +297,7 @@ namespace TaskDo.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("Tasks", (string)null);
                 });
 
             modelBuilder.Entity("TaskDo.Data.Entities.User", b =>
