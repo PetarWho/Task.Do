@@ -56,20 +56,47 @@ namespace TaskDo.Utils
             }
 
             /// <summary>
+            /// Decode the token to Dictionary
+            /// </summary>
+            /// <param name="token">JWT to decode</param>
+            /// <returns>Dictionary</returns>
+            public static Dictionary<string, string> GetTokenAsDictionary(string token)
+            {
+                string secret = "ASDFGHJKLQWERTYUIOPZXCVBNM1234567890";
+                var key = Encoding.ASCII.GetBytes(secret);
+                var handler = new JwtSecurityTokenHandler();
+                var validations = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+
+                var claimsPrincipal = handler.ValidateToken(token, validations, out var tokenSecure);
+
+                var claims = claimsPrincipal.Claims
+                    .Where(c => !string.IsNullOrEmpty(c.Type) && !string.IsNullOrEmpty(c.Value))
+                    .ToDictionary(c => GetKeyFromClaimType(c.Type), c => c.Value);
+
+                return claims;
+            }
+
+            /// <summary>
             /// Get User by JSON Web Token
             /// </summary>
             /// <param name="token">User's token</param>
             /// <param name="context">DbContext for accessing db</param>
             /// <returns></returns>
             /// <exception cref="ArgumentException"></exception>
-            public static User GetUserByToken(string token, ApplicationDbContext context)
+            public static User? GetUserByToken(string token, ApplicationDbContext context)
             {
                 var dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(GetTokenAsJson(token));
-                var user = context.Users.FirstOrDefault(x=>x.Id == dictionary["id"]);
-                if (user == null)
+                if (dictionary == null)
                 {
-                    throw new ArgumentException("User not found!");
+                    return null;
                 }
+                var user = context.Users.FirstOrDefault(x=>x.Id == dictionary["id"]);
                 return user;
             }
         }
@@ -118,5 +145,27 @@ namespace TaskDo.Utils
             }
         }
 
+        /// <summary>
+        /// Retrieves JSON Web Token
+        /// </summary>
+        public static class JwtRetriever
+        {
+            /// <summary>
+            /// Get JWT from request header
+            /// </summary>
+            /// <param name="headers">Headers as dictionary</param>
+            /// <returns>Token or null</returns>
+            public static string? GetTokenFromHeader(IHeaderDictionary headers)
+            {
+                var authHeader = headers["Authorization"].FirstOrDefault();
+
+                if (authHeader == null || !authHeader.StartsWith("Bearer "))
+                {
+                    return null;
+                }
+
+                return authHeader.Substring("Bearer ".Length).Trim();
+            }
+        }
     }
 }
