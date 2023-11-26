@@ -9,7 +9,6 @@ import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import LoginWidget from "../../Auth/LoginWidget";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -18,6 +17,7 @@ const pages = ["Users", "Tasks"];
 
 function Header() {
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [isManager, setIsManager] = React.useState(false);
   const date = {
     someDate: new Date().getDate(),
   };
@@ -39,15 +39,15 @@ function Header() {
   };
 
   const authToken = localStorage.getItem('authToken');
-
+  
   const handleLogout = async () => {
     try {
       const response = await fetch(
-        `https://localhost:7136/api/Account/logout?token=${encodeURIComponent(authToken)}`,
+        `https://localhost:7136/api/Account/logout`,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${authToken}`
           },
         }
       );
@@ -55,7 +55,7 @@ function Header() {
       if (response.ok) {
         console.log("Successful logout!");
         localStorage.clear(authToken)
-        navigate("/")
+        navigate("/login")
       } else {
         console.log("Error");
       }
@@ -67,6 +67,36 @@ function Header() {
   const navigateToLogin = () => {
     navigate("/login");
   };
+
+  const navigateToCreateTask = () => {
+    navigate("/createTask");
+  };
+
+  React.useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const response = await fetch('https://localhost:7136/api/Users/get_role', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authToken}`
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.text();
+          setIsManager(data === 'Manager');
+        } else {
+          console.error('Failed to fetch user role');
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    };
+
+    if (authToken) {
+      fetchUserRole();
+    }
+  }, [authToken]);
 
   const isLoggedIn = authToken !== null;
 
@@ -95,12 +125,17 @@ function Header() {
                 fontFamily: "monospace",
                 fontWeight: 700,
                 letterSpacing: ".3rem",
-                color: "inherit",
+                color: "black",
                 textDecoration: "none",
               }}
             >
               DiaDo
             </Typography>
+            {isManager && (
+              <Button onClick={navigateToCreateTask} sx={{ ml: 3, color:"black", fontWeight:'bold', fontSize:'1rem', borderBottom:'1px solid black', fontFamily:'monospace' }}>
+                Create Task
+              </Button>
+            )}
             </Box>
             <Box>
             {isLoggedIn ? (

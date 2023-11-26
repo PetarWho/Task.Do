@@ -12,14 +12,16 @@ import AdminCalendar from "./Layouts/AdminPanel/AdminTaskCalendar";
 import RegistrationForm from "./Layouts/RegistrationForm";
 import LoginForm from "./Layouts/LoginForm";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Home from "./Layouts/Home/Home";
 
 function App() {
   return (
     <div className="App">
-      
+
       <BrowserRouter>
-      <Header />
+        <Header />
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/createTask" element={<CreateTask />} />
           <Route path="/calendar" element={<TaskCalendar />} />
           <Route path="/adminCalendar" element={<AdminCalendar />} />
@@ -31,8 +33,8 @@ function App() {
           <Route path="/subtask/:subtaskId" element={<Subtask />} />
         </Routes>
       </BrowserRouter>
-      <Footer/>
-      
+      <Footer />
+
     </div>
   );
 }

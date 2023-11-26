@@ -50,7 +50,7 @@ function Task() {
     <Box sx={{ flexGrow: 1, maxWidth: "100%" }}>
       <Grid container spacing={1}>
         {/* BackButton */}
-        <Grid item xs={12} md={12}>
+        <Grid item xs={1} md={1} sx={{ marginTop: '10px' }}>
           <BackButton />
         </Grid>
 
@@ -84,7 +84,7 @@ function Task() {
                 {subTasks.map((subTask) => (
                   <TableRow key={subTask.id}>
                     <TableCell style={{ paddingLeft: '40px' }}>
-                      <Link to={{ pathname: `/subtask/${subTask.id}`, state: { subtaskId: subTask.id } }}>
+                      <Link to={{ pathname: `/subtask/${subTask.id}`, state: { subtaskId: subTask.id } }} style={{textDecoration: 'none', fontSize: '1rem'}}>
                         {subTask.title}
                       </Link>
                     </TableCell>

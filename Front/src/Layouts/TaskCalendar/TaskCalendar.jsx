@@ -14,7 +14,7 @@ const TaskCalendar = () => {
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      navigate("/");
+      navigate('/');
       return;
     }
 
@@ -29,7 +29,7 @@ const TaskCalendar = () => {
 
         if (response.ok) {
           const tasksData = await response.json();
-          setTasks(tasksData); 
+          setTasks(tasksData);
         } else {
           console.error('Failed to fetch tasks');
         }
@@ -45,21 +45,36 @@ const TaskCalendar = () => {
     const updatedEvents = tasks.map((task) => ({
       id: task.id,
       title: task.title,
-      start: new Date(task.startDate), 
+      start: new Date(task.startDate),
       end: new Date(task.endDate),
+      status: task.status, // Include task status
     }));
-  
+
     setEvents(updatedEvents);
   }, [tasks]);
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 0:
+        return 'lightgray';
+      case 1:
+        return 'cornflowerblue';
+      case 2:
+        return 'greenyellow';
+      case 3:
+        return 'crimson';
+      default:
+        return '';
+    }
+  };
+
   const handleEventClick = (clickedInfo) => {
     const taskId = clickedInfo.event.id;
-
     navigate(`/task/${taskId}`);
   };
 
   return (
-    <div style={{ height: 300}}>
+    <div style={{ height: 300 }}>
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridDay"
@@ -74,10 +89,12 @@ const TaskCalendar = () => {
         slotMinTime="09:00:00"
         slotMaxTime="18:00:00"
         eventDidMount={(info) => {
-          const eventEls = document.querySelectorAll('.fc-event');
-          eventEls.forEach((el) => {
-            el.style.cursor = 'pointer';
-          });
+          const eventEl = info.el;
+          const taskStatus = info.event.extendedProps.status;
+          const eventStatusColor = getStatusColor(taskStatus);
+
+          eventEl.style.cursor = 'pointer';
+          eventEl.style.backgroundColor = eventStatusColor;
         }}
       />
     </div>

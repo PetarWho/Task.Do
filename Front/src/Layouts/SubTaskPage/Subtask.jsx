@@ -7,11 +7,11 @@ import FileUploader from "../Utils/FileUploader";
 import SpinnerLoading from "../Utils/SpinnerLoading";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function Subtask() {
   const navigate = useNavigate();
-  const subtaskId = useParams();
+  const { subtaskId } = useParams();
   const [subtask, setSubtask] = useState(null);
   const [fileName, setFileName] = useState("");
   const [noteText, setNoteText] = useState("");
@@ -21,7 +21,7 @@ function Subtask() {
     const fetchSubtaskData = async () => {
       try {
         const response = await fetch(
-          `https://localhost:7136/api/subtasks/get_by_id?subtaskId=${subtaskId.subtaskId}`
+          `https://localhost:7136/api/subtasks/get_by_id?subtaskId=${subtaskId}`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -39,49 +39,51 @@ function Subtask() {
     }
   }, [subtaskId]);
 
-  const handleFile = (file) => {
+  const handleFile = async (file) => {
     setFileName(file.name);
   
-    const formData = new FormData();
-    formData.append("subtaskId", subtask.id);
-    formData.append("imagePath", file.name);
-    console.log(file);
-    fetch("https://localhost:7136/api/subtasks/add_image", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => {
-        if (response.ok) {
-          // Image uploaded successfully, allow the user to add a note now
-          setIsLoading(false);
-        } else {
-          // Handle the error
+    const reader = new FileReader();
+  
+    reader.onload = async (event) => {
+      try {
+        const response = await fetch(`https://localhost:7136/api/subtasks/add_image?subtaskId=${subtask.Id}&imagePath=${file.name}`, {
+          method: "POST",
+          headers:{
+            "Content-Type": `application/json;`
+          }
+        });
+  
+        if (!response.ok) {
+          throw new Error("Image upload failed");
         }
-      })
-      .catch((error) => {
+  
+        setIsLoading(false);
+      } catch (error) {
         console.error("Error uploading image:", error);
-      });
+      }
+    };
+  
+    reader.readAsDataURL(file); 
   };
-  
-  const addNote = () => {
-    const formData = new FormData();
-    formData.append("subtaskId", subtask.id);
-    formData.append("noteText", noteText); // Send noteText as formData
-  
-    fetch("https://localhost:7136/api/subtasks/add_note", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => {
-        if (response.ok) {
-          navigate(`/task/${subtask.taskId}`);
-        } else {
-          // Handle the error
-        }
-      })
-      .catch((error) => {
-        console.error("Error adding note:", error);
+
+  const addNote = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("subtaskId", subtask.Id); 
+      formData.append("noteText", noteText);
+
+      const response = await fetch(`https://localhost:7136/api/subtasks/add_note?subtaskId=${subtask.Id}&noteText=${noteText}`, {
+        method: "POST",
       });
+
+      if (!response.ok) {
+        throw new Error("Adding note failed");
+      }
+
+      navigate(`/task/${subtask.TaskId}`);
+    } catch (error) {
+      console.error("Error adding note:", error);
+    }
   };
 
   if (!subtask) {
@@ -91,7 +93,7 @@ function Subtask() {
   return (
     <Box sx={{ flexGrow: 1, maxWidth: "100%" }}>
       <Grid container spacing={2}>
-        <Grid item xs={12} md={12}>
+        <Grid item xs={1} md={1} sx={{marginTop: '10px'}}>
           <BackButton />
         </Grid>
 

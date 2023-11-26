@@ -14,10 +14,10 @@ function Footer() {
     sx={{
       backgroundColor: "rgb(177, 226, 247)",
       textAlign: "center",
-      padding: "10px",
       position: "fixed",
       bottom: 0,
       width: "100%",
+      zIndex:2
     }}
   >
       <Container maxWidth="xl">
@@ -32,7 +32,7 @@ function Footer() {
                 letterSpacing: ".3rem",
               }}
             >
-              © {new Date().getFullYear()} DiaDo. All rights reserved. Team-PVS
+              ©DiaDo {new Date().getFullYear()}. Team-PVS
             </Typography>
           </Box>
         </Toolbar>
