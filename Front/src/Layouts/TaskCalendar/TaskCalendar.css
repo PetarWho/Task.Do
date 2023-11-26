@@ -1,3 +1,37 @@
 .fc-event {
-    cursor: pointer;
+  max-width: fit-content;
+  padding: 5px;
+  cursor: pointer;
+  border-color: black;
+  color:black ;
+  }
+
+  .fc-col-header-cell-cushion{
+    text-decoration: none;
+    color:rgb(157, 33, 33);
+  }
+
+  .fc-daygrid-event-dot{
+    display: none;
+  }
+
+  .fc-event-main-frame>div{
+    color:black;
+    font-size: 1rem;
+  }
+
+  .fc-button{
+    margin-top: 5px!important;
+  }
+
+  .custom-event-content>div{
+    color:black;
+  }
+
+  .custom-event-content>div:first-child{
+    font-size: 1rem;
+  }
+
+  .fc-daygrid-day-number{
+    text-decoration: none;
   }

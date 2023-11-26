@@ -93,24 +93,6 @@ const CreateTask = () => {
     }
   };
 
-  // const handleCreateTask = async () => {
-  //   try {
-  //     const apiUrl = `https://localhost:7136/api/subtasks/delete?id=${subTaskId}`;
-  //     const response = await fetch(apiUrl, {
-  //       method: "DELETE",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error("Network response was not ok");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error deleting subtask:", error);
-  //   }
-  // };
-
   const handleCreateTask = async () => {
     const requestData = {
       title: "Task Title2",
@@ -207,7 +189,7 @@ const CreateTask = () => {
   
 
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} sx={{mb:10, mt:1}}>
       <Grid item xs={12}>
         <Typography
           style={{

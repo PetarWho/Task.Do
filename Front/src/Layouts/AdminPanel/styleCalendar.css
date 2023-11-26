@@ -1,6 +1,36 @@
 .fc-event.fc-event-start.fc-event-end.fc-event-today.fc-event-future.fc-timegrid-event.fc-v-event {
-    height: 80px;
+    height: auto;
+    width: auto;
+    max-height: 10%;
+    max-width: 10%;
 }
 .fc-event{
+    max-width: fit-content;
+    padding: 5px;
     cursor: pointer;
+}
+
+.fc-daygrid-event-dot{
+  display: none;
+}
+
+.fc-event-main-frame>div{
+  color:black;
+  font-size: 1rem;
+}
+
+.fc-button{
+  margin-top: 5px!important;
+}
+
+.custom-event-content>div{
+  color:black;
+}
+
+.custom-event-content>div:first-child{
+  font-size: 1rem;
+}
+
+.fc-daygrid-day-number{
+  text-decoration: none;
 }

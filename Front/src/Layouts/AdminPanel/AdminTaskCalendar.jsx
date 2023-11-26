@@ -1,76 +1,81 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useNavigate } from 'react-router-dom';
-import './styleCalendar.css'
+import './styleCalendar.css';
 
 const AdminCalendar = () => {
-    const tasks = [
-        {
-          id: 1,
-          title: 'Task 1',
-          description: 'Description 1',
-          start: new Date().setHours(9, 0, 0, 0),
-          end: new Date().setHours(10, 0, 0, 0),
-          users: ['Alice', 'Bob', 'Charlie']
-        },
-        {
-          id: 2,
-          title: 'Task 2',
-          description: 'Description 2',
-          start: new Date().setHours(12, 0, 0, 0),
-          end: new Date().setHours(13, 0, 0, 0),
-          users: ['Simona', 'Peter', 'Veselin']
-        },
-        {
-          id: 3,
-          title: 'Task 3',
-          description: 'Description 3',
-          start: new Date().setHours(17, 0, 0, 0),
-          end: new Date().setHours(18, 0, 0, 0),
-          users: ['Ivan', 'Georgi', 'Dimitar']
-        },
-      ];
-
+  const [tasks, setTasks] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch tasks from the API
+    const fetchTasks = async () => {
+      try {
+        const response = await fetch('https://localhost:7136/api/tasks/all');
+        if (!response.ok) {
+          throw new Error('Failed to fetch tasks');
+        }
+        const data = await response.json();
+        setTasks(data["$values"]); // Assuming the tasks array is under "$values"
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   const handleEventClick = (clickedInfo) => {
     const clickedEvent = clickedInfo.event;
-    const clickedStartTime = clickedEvent.start.getTime();
-    const clickedEndTime = clickedEvent.end.getTime();
-  
-    const selectedTask = tasks.find(
-      (task) =>
-        new Date(task.start).getTime() === clickedStartTime &&
-        new Date(task.end).getTime() === clickedEndTime
-    );
-  
-    if (selectedTask) {
-      navigate(`/task/${clickedEvent.id}`, { state: { task: selectedTask } });
-    }
+    const taskId = clickedEvent.extendedProps.taskId;
+
+    navigate(`/task/${taskId}`);
   };
-  
+
   const events = tasks.map((task) => ({
-    id: task.id,
-    title: task.title,
-    start: new Date(task.start),
-    end: new Date(task.end),
+    id: task.Id,
+    title: task.Title,
+    start: new Date(task.StartDate),
+    end: new Date(task.EndDate),
     extendedProps: {
-      users: task.users.join(', ')
-    }
+      users: task.Employees.$values.join(', '),
+      status: task.Status,
+      taskId: task.Id,
+    },
   }));
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 0:
+        return 'lightgray';
+      case 1:
+        return 'cornflowerblue';
+      case 2:
+        return 'greenyellow';
+      case 3:
+        return 'crimson';
+      default:
+        return '';
+    }
+  };
+
   const eventContent = (eventInfo) => {
+    const eventStatusColor = getStatusColor(eventInfo.event.extendedProps.status);
+
     return (
-      <>
-        <div className="custom-event-content">
-      <div>{eventInfo.event.title}</div>
-      <div>{eventInfo.timeText}</div>
-      <div>{eventInfo.event.extendedProps.users}</div>
-    </div>
-      </>
+      <div>
+        <div
+          className="custom-event-content"
+          style={{ backgroundColor: eventStatusColor, cursor: 'pointer' }}
+          onClick={() => handleEventClick(eventInfo)}
+        >
+          <div>{eventInfo.event.title} - {eventInfo.event.extendedProps.users}</div>
+          <div>{eventInfo.timeText}</div>
+        </div>
+      </div>
     );
   };
 
@@ -91,10 +96,12 @@ const AdminCalendar = () => {
         slotMaxTime="18:00:00"
         eventContent={eventContent}
         eventDidMount={(info) => {
-          const eventEls = document.querySelectorAll('.fc-event');
-          eventEls.forEach((el) => {
-            el.style.cursor = 'pointer';
-          });
+          const eventEl = info.el;
+          const taskStatus = info.event.extendedProps.status; 
+          const eventStatusColor = getStatusColor(taskStatus);
+        
+          eventEl.style.cursor = 'pointer';
+          eventEl.style.backgroundColor = eventStatusColor;
         }}
       />
     </div>
