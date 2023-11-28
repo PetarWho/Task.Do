@@ -7,7 +7,7 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 
 function RegisterWidget({ onRegister }) {
-  const [value, setValue] = useState(0);
+  const [type, setValue] = useState(0);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,7 +30,7 @@ function RegisterWidget({ onRegister }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onRegister({username, email, password, value });
+    onRegister({username, email, password, type });
     // const url = `https://localhost:7136/api/register/employee`;
     // onRegister({ username, email, password });
 
@@ -59,7 +59,7 @@ function RegisterWidget({ onRegister }) {
         margin: "0 auto",
       }}
     >
-      <Tabs value={value} onChange={handleChange} centered>
+      <Tabs value={type} onChange={handleChange} centered>
         <Tab label="User" />
         <Tab label="Manager" />
       </Tabs>

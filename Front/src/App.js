@@ -11,6 +11,7 @@ import CreateSubtask from "./Layouts/AdminPanel/CreateSubTask";
 import AdminCalendar from "./Layouts/AdminPanel/AdminTaskCalendar";
 import RegistrationForm from "./Layouts/RegistrationForm";
 import LoginForm from "./Layouts/LoginForm";
+import PrivateRoutes from "./Layouts/Utils/PrivateRoutes";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./Layouts/Home/Home";
 
@@ -22,15 +23,17 @@ function App() {
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/Login" element={<LoginForm />} />
+          <Route path="/register" element={<RegistrationForm />} />
+          <Route element={<PrivateRoutes/>}>
           <Route path="/createTask" element={<CreateTask />} />
           <Route path="/calendar" element={<TaskCalendar />} />
           <Route path="/adminCalendar" element={<AdminCalendar />} />
-          <Route path="/register" element={<RegistrationForm />} />
-          <Route path="/Login" element={<LoginForm />} />
           <Route path="/adminTasks" element={<AdminTasks />} />
           <Route path="/createSubtask" element={<CreateSubtask />} />
           <Route path="/task/:taskId" element={<Task />} />
           <Route path="/subtask/:subtaskId" element={<Subtask />} />
+          </Route>
         </Routes>
       </BrowserRouter>
       <Footer />
