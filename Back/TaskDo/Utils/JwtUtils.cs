@@ -101,7 +101,7 @@ namespace TaskDo.Utils
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes("ASDFGHJKLQWERTYUIOPZXCVBNM1234567890");
-                var expiryDate = DateTime.UtcNow.AddMinutes(1);
+                var expiryDate = DateTime.UtcNow.AddHours(24);
 
                 var claims = new List<Claim>
                 {
