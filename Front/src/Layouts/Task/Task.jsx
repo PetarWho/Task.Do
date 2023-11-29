@@ -11,18 +11,32 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import fetch from '../../axiosInterceptor';
 
 function Task() {
   const { taskId } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [task, setTask] = useState({ title: "", description: "" });
   const [subTasks, setSubTasks] = useState([]);
+  const authToken = localStorage.getItem('authToken');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const taskResponse = await fetch(`https://localhost:7136/api/tasks/get_by_id?taskId=${taskId}`);
-        const subTasksResponse = await fetch(`https://localhost:7136/api/subtasks/all?taskId=${taskId}`);
+        const taskResponse = await fetch(`https://localhost:7136/api/tasks/get_by_id?taskId=${taskId}`, {
+          method: "GET",
+          headers:{
+            "Content-Type": `application/json;`,
+            Authorization: `Bearer ${authToken}`
+          }
+        });
+        const subTasksResponse = await fetch(`https://localhost:7136/api/subtasks/all?taskId=${taskId}`, {
+          method: "GET",
+          headers:{
+            "Content-Type": `application/json;`,
+            Authorization: `Bearer ${authToken}`
+          }
+        });
 
         if (!taskResponse.ok || !subTasksResponse.ok) {
           throw new Error("Network response was not ok");

@@ -11,9 +11,10 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import fetch from '../../axiosInterceptor';
+
 
 const settings = ["Profile", "Logout"];
-const pages = ["Users", "Tasks"];
 
 function Header() {
   const [anchorElUser, setAnchorElUser] = React.useState(null);

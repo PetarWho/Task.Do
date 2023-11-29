@@ -5,6 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useNavigate } from 'react-router-dom';
 import './TaskCalendar.css';
+import fetch from '../../axiosInterceptor';
 
 const TaskCalendar = () => {
   const [tasks, setTasks] = useState([]);
@@ -13,10 +14,6 @@ const TaskCalendar = () => {
 
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
-    if (!authToken) {
-      navigate('/');
-      return;
-    }
 
     const fetchTasks = async () => {
       try {
@@ -47,7 +44,7 @@ const TaskCalendar = () => {
       title: task.title,
       start: new Date(task.startDate),
       end: new Date(task.endDate),
-      status: task.status, // Include task status
+      status: task.status, 
     }));
 
     setEvents(updatedEvents);
