@@ -20,8 +20,9 @@ namespace TaskDo.Controllers
 
         private readonly ApplicationDbContext _context;
         private readonly JsonSerializerOptions _jsonOptions;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public SubtaskController(ApplicationDbContext context)
+        public SubtaskController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _jsonOptions = new JsonSerializerOptions
@@ -29,6 +30,7 @@ namespace TaskDo.Controllers
                 ReferenceHandler = ReferenceHandler.Preserve, // Handle reference loops
                 WriteIndented = true
             };
+            _webHostEnvironment = webHostEnvironment;
         }
 
         #endregion
@@ -145,39 +147,77 @@ namespace TaskDo.Controllers
         /// Add image to Subtask
         /// </summary>
         /// <param name="subtaskId">Subtask ID</param>
-        /// <param name="imagePath">Local path of the image</param>
         /// <returns>200 for success or 404 if Subtask is not found</returns>
         [AuthorizeJwt]
         [HttpPost("add_image")]
-        public async Task<IActionResult> AddImageToSubtask(Guid subtaskId, string imagePath)
+        public async Task<IActionResult> AddImageToSubtask(Guid subtaskId)
         {
-            var subtask = await _context.Subtasks.Include(x => x.Images).Include(x => x.Notes).FirstOrDefaultAsync(x => x.Id == subtaskId);
-            if (subtask == null)
-            {
-                return NotFound("Subtask not found");
-            }
-            var image = new Picture()
-            {
-                Subtask = subtask,
-                URL = imagePath
-            };
-
-            await _context.AddAsync(image);
-            var task = await _context.Tasks.Include(x => x.Subtasks).FirstOrDefaultAsync(x => x.Id == subtask.TaskId);
             try
             {
-                if (task == null)
+                var subtask = await _context.Subtasks.FindAsync(subtaskId);
+                if (subtask == null)
                 {
-                    throw new ArgumentException("Task associated with this subtask not found");
+                    return NotFound("Subtask not found");
                 }
-                CheckCompletion(subtask, task);
+
+                var image = new Picture
+                {
+                    SubtaskId = subtaskId
+                };
+
+                byte[] imageData;
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    await Request.Body.CopyToAsync(ms);
+                    imageData = ms.ToArray();
+                }
+
+                if (Request.ContentType == null)
+                {
+                    return BadRequest("Invalid ContentType");
+                }
+
+                var fileExtension = GetFileExtension(Request.ContentType);
+                var fileName = $"{Guid.NewGuid()}{fileExtension}";
+
+                var imagePath = Path.Combine("Images", fileName);
+
+                var contentRootPath = _webHostEnvironment.ContentRootPath;
+
+                var imagesFolderPath = Path.Combine(contentRootPath, "Images");
+                if (!Directory.Exists(imagesFolderPath))
+                {
+                    Directory.CreateDirectory(imagesFolderPath);
+                }
+                var completeImagePath = Path.Combine(contentRootPath, imagePath);
+                image.URL = completeImagePath;
+
+                // Save the image file to the content root/Images folder
+                var physicalPath = Path.Combine(contentRootPath, imagePath);
+                await System.IO.File.WriteAllBytesAsync(physicalPath, imageData);
+
+                _context.Pictures.Add(image);
+                await _context.SaveChangesAsync();
+
+                return Ok();
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-            await _context.SaveChangesAsync();
-            return Ok();
+        }
+
+        private string GetFileExtension(string contentType)
+        {
+            switch (contentType)
+            {
+                case "image/jpeg":
+                    return ".jpg";
+                case "image/png":
+                    return ".png";
+                default:
+                    return ".jpg";
+            }
         }
 
         #endregion
