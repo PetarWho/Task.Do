@@ -85,7 +85,7 @@ function Header() {
 
         if (response.ok) {
           const data = await response.text();
-          setIsManager(data === 'Manager');
+          setIsManager(data === 'manager');
         } else {
           console.error('Failed to fetch user role');
         }
