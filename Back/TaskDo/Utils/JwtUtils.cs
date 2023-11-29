@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -28,32 +29,13 @@ namespace TaskDo.Utils
             /// <returns>Decoded data as JSON</returns>
             public static string GetTokenAsJson(string token)
             {
-                string secret = "ASDFGHJKLQWERTYUIOPZXCVBNM1234567890";
-                var key = Encoding.ASCII.GetBytes(secret);
-                var handler = new JwtSecurityTokenHandler();
-                var validations = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-
-                var claimsPrincipal = handler.ValidateToken(token, validations, out var tokenSecure);
-
-                var claims = claimsPrincipal.Claims
-                    .Where(c => !string.IsNullOrEmpty(c.Type) && !string.IsNullOrEmpty(c.Value))
-                    .ToDictionary(c => GetKeyFromClaimType(c.Type), c => c.Value);
+                var claims = ValidateToken(token);
 
                 var tokenDataAsSimplifiedJson = System.Text.Json.JsonSerializer.Serialize(claims);
 
                 return tokenDataAsSimplifiedJson;
             }
-            private static string GetKeyFromClaimType(string claimType)
-            {
-                int lastIndex = claimType.LastIndexOf('/');
-                return lastIndex >= 0 ? claimType.Substring(lastIndex + 1) : claimType;
-            }
+            
 
             /// <summary>
             /// Decode the token to Dictionary
@@ -62,24 +44,7 @@ namespace TaskDo.Utils
             /// <returns>Dictionary</returns>
             public static Dictionary<string, string> GetTokenAsDictionary(string token)
             {
-                string secret = "ASDFGHJKLQWERTYUIOPZXCVBNM1234567890";
-                var key = Encoding.ASCII.GetBytes(secret);
-                var handler = new JwtSecurityTokenHandler();
-                var validations = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-
-                var claimsPrincipal = handler.ValidateToken(token, validations, out var tokenSecure);
-
-                var claims = claimsPrincipal.Claims
-                    .Where(c => !string.IsNullOrEmpty(c.Type) && !string.IsNullOrEmpty(c.Value))
-                    .ToDictionary(c => GetKeyFromClaimType(c.Type), c => c.Value);
-
-                return claims;
+                return ValidateToken(token);
             }
 
             /// <summary>
@@ -99,6 +64,25 @@ namespace TaskDo.Utils
                 var user = context.Users.FirstOrDefault(x=>x.Id == dictionary["id"]);
                 return user;
             }
+
+            /// <summary>
+            /// Get Expiration Date from Token
+            /// </summary>
+            /// <param name="token">JSON Web Token</param>
+            /// <returns>DateTime</returns>
+            /// <exception cref="ArgumentException">Invalid token</exception>
+            public static DateTime GetExpirationDateFromToken(string token)
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var securityToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+
+                if (securityToken == null || securityToken.ValidTo == null)
+                {
+                    throw new ArgumentException("Invalid token or missing expiration date.");
+                }
+
+                return securityToken.ValidTo;
+            }
         }
 
         /// <summary>
@@ -117,7 +101,7 @@ namespace TaskDo.Utils
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes("ASDFGHJKLQWERTYUIOPZXCVBNM1234567890");
-                var expiryDate = DateTime.UtcNow.AddHours(24);
+                var expiryDate = DateTime.UtcNow.AddMinutes(1);
 
                 var claims = new List<Claim>
                 {
@@ -167,5 +151,33 @@ namespace TaskDo.Utils
                 return authHeader.Substring("Bearer ".Length).Trim();
             }
         }
+
+        #region Validation
+        public static Dictionary<string,string> ValidateToken(string token)
+        {
+            string secret = "ASDFGHJKLQWERTYUIOPZXCVBNM1234567890";
+            var key = Encoding.ASCII.GetBytes(secret);
+            var handler = new JwtSecurityTokenHandler();
+            var validations = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };
+
+            var claimsPrincipal = handler.ValidateToken(token, validations, out var tokenSecure);
+
+            var claims = claimsPrincipal.Claims
+                .Where(c => !string.IsNullOrEmpty(c.Type) && !string.IsNullOrEmpty(c.Value))
+                .ToDictionary(c => GetKeyFromClaimType(c.Type), c => c.Value);
+            return claims;
+        }
+        private static string GetKeyFromClaimType(string claimType)
+        {
+            int lastIndex = claimType.LastIndexOf('/');
+            return lastIndex >= 0 ? claimType.Substring(lastIndex + 1) : claimType;
+        }
+        #endregion
     }
 }

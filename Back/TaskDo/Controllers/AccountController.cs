@@ -6,6 +6,7 @@ using TaskDo.Data.Entities;
 using TaskDo.Data.Entities.Enums;
 using TaskDo.Models;
 using TaskDo.Utils;
+using TaskDo.Utils.Attributes;
 using static TaskDo.Utils.JwtUtils;
 
 namespace TaskDo.Controllers
@@ -186,9 +187,16 @@ namespace TaskDo.Controllers
         /// <param name="token">Token as string</param>
         /// <returns>The decoded token result as JSON</returns>
         [HttpGet("decode_token")]
-        public string GetTokenAsJson(string token)
+        public IActionResult GetTokenAsJson(string token)
         {
-            return JwtUtils.JwtDecoder.GetTokenAsJson(token);
+            try
+            {
+            return Ok(JwtDecoder.GetTokenAsJson(token));
+            }
+            catch (Exception)
+            {
+                return StatusCode(498);
+            }
         }
         #endregion
     }

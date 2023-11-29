@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskDo.Data;
+using TaskDo.Utils.Attributes;
 using static TaskDo.Utils.JwtUtils;
 
 namespace TaskDo.Controllers
@@ -28,8 +29,8 @@ namespace TaskDo.Controllers
         /// <summary>
         /// Get all users from database 
         /// </summary>
-        /// <returns></returns>
-        //[Authorize(JwtBearerDefaults.AuthenticationScheme)]
+        /// <returns>List of Users</returns>
+        [AuthorizeJwt]
         [HttpGet("all")]
         public IActionResult GetAllUsers()
         {
@@ -42,6 +43,7 @@ namespace TaskDo.Controllers
         /// Get all employees from database
         /// </summary>
         /// <returns>List of employees</returns>
+        [AuthorizeJwt]
         [HttpGet("all_employees")]
         public IActionResult GetAllEmployees()
         {
@@ -54,6 +56,7 @@ namespace TaskDo.Controllers
         /// Get all managers from database
         /// </summary>
         /// <returns>List of managers</returns>
+        [AuthorizeJwt]
         [HttpGet("all_managers")]
         public IActionResult GetAllManagers()
         {
@@ -67,6 +70,7 @@ namespace TaskDo.Controllers
         /// </summary>
         /// <param name="name">Name or substring</param>
         /// <returns>List of Employees</returns>
+        [AuthorizeJwt]
         [HttpGet("get_by_name")]
         public IActionResult GetUserByName(string name)
         {
@@ -80,6 +84,7 @@ namespace TaskDo.Controllers
         /// </summary>
         /// <param name="userId">User's ID</param>
         /// <returns>User if found or 404 if not</returns>
+        [AuthorizeJwt]
         [HttpGet("get_by_id")]
         public async Task<IActionResult> GetUserById(string userId)
         {
@@ -95,7 +100,7 @@ namespace TaskDo.Controllers
         /// Get user by token
         /// </summary>
         /// <returns>User</returns>
-        [Authorize]
+        [AuthorizeJwt]
         [HttpGet("get_by_token")]
         public IActionResult GetUserByToken()
         {
@@ -113,7 +118,7 @@ namespace TaskDo.Controllers
         /// Get User role by token
         /// </summary>
         /// <returns>Role as string</returns>
-        [Authorize]
+        [AuthorizeJwt]
         [HttpGet("get_role")]
         public IActionResult GetUserRoleByToken()
         {
