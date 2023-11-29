@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
-import { Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography,Autocomplete } from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
@@ -22,25 +22,14 @@ const CreateTask = () => {
     { id: 3, title: "SubTask 3", description: "SubDescription 3" },
   ]);
 
-  const [assignedUsers, setAssignedUsers] = useState([
-    {
-      id: 1,
-      username: "Simona Simeonova",
-    },
-    {
-      id: 2,
-      username: "Peter Penev",
-    },
-    {
-      id: 3,
-      username: "Veselin Kokoshkov",
-    },
-  ]);
+  const [assignedUsers, setAssignedUsers] = useState([]);
   const [submittedSubtask, setSubmittedSubtask] = useState(null);
 
   //for adding a user ot the task
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
+  const [userOptions, setUserOptions] = useState([]);
   const [newUserName, setNewUserName] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const openAddUserDialog = () => {
     setAddUserDialogOpen(true);
@@ -134,58 +123,51 @@ const CreateTask = () => {
     }
   };
 
-  const fetchUsersFromDatabase = async () => {
-    try {
-      const apiUrl = 'https://localhost:7136/api/Users/all'; // Change the URL to your actual API endpoint
-      const response = await fetch(apiUrl);
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const data = await response.json();
-      setAssignedUsers(data); // Assuming your API returns an array of users
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
-  };
-
-  const handleAddUsers = () => {
-    fetchUsersFromDatabase();
-  };
-
-  const handleAddUser = async () => {
-    try {
-      const apiUrl = `https://localhost:7136/api/Users/check_existence?name=${newUserName}`;
-      const response = await fetch(apiUrl);
   
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-  
-      const userExists = await response.json();
-  
-      if (userExists) {
-        // User exists, add the new user to the state
-        const newUserId = assignedUsers.length + 1; // Replace with your logic to generate a unique ID
-        const newUser = {
-          id: newUserId,
-          username: newUserName,
-        };
-        setAssignedUsers((prevUsers) => [...prevUsers, newUser]);
-      } else {
-        // User does not exist in the database, handle accordingly (show an error message, etc.)
-        console.error('User does not exist in the database');
-      }
-  
-      // Close the dialog
+  const handleAddUser = () => {
+    if (selectedUser) {
+      setAssignedUsers((prevUsers) => [...prevUsers, selectedUser]);
       closeAddUserDialog();
+    }
+  }; 
+
+  const fetchUserOptions = async (inputValue) => {
+    try {
+      const response = await fetch(
+        `https://localhost:7136/api/users/all_employees`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const userData = await response.json();
+        return userData.map((user) => ({
+          id: user.employeeId,
+          username: user.userName,
+        }));
+      } else {
+        console.error("Failed to fetch user options");
+        return [];
+      }
     } catch (error) {
-      console.error('Error checking user existence:', error);
+      console.error("An error occurred while fetching user options", error);
+      return [];
     }
   };
-  
-  
 
+  useEffect(() => {
+    const loadUserOptions = async () => {
+      const options = await fetchUserOptions(newUserName);
+      setUserOptions(options);
+    };
+
+    loadUserOptions();
+  }, [newUserName]);
+  
   
 
   return (
@@ -367,12 +349,14 @@ const CreateTask = () => {
       <Dialog open={isAddUserDialogOpen} onClose={closeAddUserDialog}>
         <DialogTitle>Add User</DialogTitle>
         <DialogContent>
-          <TextField
-            label="Username"
-            variant="outlined"
-            fullWidth
-            value={newUserName}
-            onChange={(e) => setNewUserName(e.target.value)}
+          <Autocomplete
+            options={userOptions}
+            getOptionLabel={(user) => user.username}
+            value={selectedUser}
+            onChange={(event, newValue) => setSelectedUser(newValue)}
+            renderInput={(params) => (
+              <TextField {...params} label="Username" variant="outlined" fullWidth />
+            )}
           />
         </DialogContent>
         <DialogActions>
