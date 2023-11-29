@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using TaskDo.Data;
 using TaskDo.Data.Entities;
 using TaskDo.Models.Subtask;
+using TaskDo.Utils.Attributes;
 
 namespace TaskDo.Controllers
 {
@@ -40,6 +41,7 @@ namespace TaskDo.Controllers
         /// <param name="id">Subtask ID</param>
         /// <param name="updatedSubtask">The updated subtask</param>
         /// <returns>200 if edit is successful or 404 if subtask not found</returns>
+        [AuthorizeJwt]
         [HttpPut("edit")]
         public IActionResult UpdateSubtask(Guid id, SubtaskModel updatedSubtask)
         {
@@ -69,6 +71,7 @@ namespace TaskDo.Controllers
         /// </summary>
         /// <param name="id">Subtask ID</param>
         /// <returns>204 if deletion is successful or 404 if subtask not found</returns>
+        [AuthorizeJwt]
         [HttpDelete("delete")]
         public IActionResult DeleteSubtask(Guid id)
         {
@@ -94,6 +97,7 @@ namespace TaskDo.Controllers
         /// </summary>
         /// <param name="taskId">Given task ID</param>
         /// <returns>List of Subtasks or 404 if taskId is invalid</returns>
+        [AuthorizeJwt]
         [HttpGet("all")]
 
         public async Task<IActionResult> GetAllSubtasksForTask(Guid taskId)
@@ -118,6 +122,7 @@ namespace TaskDo.Controllers
         /// </summary>
         /// <param name="subtaskId">Subtask ID</param>
         /// <returns>Subtask if found or 404 if not found</returns>
+        [AuthorizeJwt]
         [HttpGet("get_by_id")]
         public async Task<IActionResult> GetSubtaskById(Guid subtaskId)
         {
@@ -142,6 +147,7 @@ namespace TaskDo.Controllers
         /// <param name="subtaskId">Subtask ID</param>
         /// <param name="imagePath">Local path of the image</param>
         /// <returns>200 for success or 404 if Subtask is not found</returns>
+        [AuthorizeJwt]
         [HttpPost("add_image")]
         public async Task<IActionResult> AddImageToSubtask(Guid subtaskId, string imagePath)
         {
@@ -184,6 +190,7 @@ namespace TaskDo.Controllers
         /// <param name="subtaskId">Subtask ID</param>
         /// <param name="noteText">Note as string</param>
         /// <returns>200 for success or 404 if Subtask is not found</returns>
+        [AuthorizeJwt]
         [HttpPost("add_note")]
         public async Task<IActionResult> AddNoteToSubtask(Guid subtaskId, string noteText)
         {

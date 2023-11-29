@@ -11,6 +11,8 @@ using TaskDo.Data;
 using TaskDo.Data.Entities;
 using TaskDo.Data.Entities.Enums;
 using TaskDo.Models.Tasks;
+using TaskDo.Utils;
+using TaskDo.Utils.Attributes;
 using static TaskDo.Utils.JwtUtils;
 
 namespace TaskDo.Controllers
@@ -45,8 +47,8 @@ namespace TaskDo.Controllers
         /// </summary>
         /// <param name="taskModel">Task Model</param>
         /// <returns>200 for success or 400 for model errors and incorrect dates</returns>
+        [AuthorizeJwt]
         [HttpPost("create")]
-        [Authorize]
         public async Task<IActionResult> CreateTask(TaskModel taskModel)
         {
             if (!ModelState.IsValid)
@@ -138,6 +140,7 @@ namespace TaskDo.Controllers
         /// </summary>
         /// <param name="id">Task ID</param>
         /// <returns>204 for successful deletion or 404 if Task not found</returns>
+        [AuthorizeJwt]
         [HttpDelete("delete")]
         public IActionResult DeleteTask(Guid id)
         {
@@ -164,6 +167,7 @@ namespace TaskDo.Controllers
         /// <param name="id">Task ID</param>
         /// <param name="updatedTask">Updated Task</param>
         /// <returns>200 for success or 404 if task not found or 400 for invalid model or dates</returns>
+        [AuthorizeJwt]
         [HttpPut("edit")]
         public IActionResult UpdateTask(Guid id, TaskModel updatedTask)
         {
@@ -226,6 +230,7 @@ namespace TaskDo.Controllers
         /// Get all Tasks
         /// </summary>
         /// <returns>List of Tasks</returns>
+        [AuthorizeJwt]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllTasks()
         {
@@ -262,6 +267,7 @@ namespace TaskDo.Controllers
         /// </summary>
         /// <param name="taskId">Task ID</param>
         /// <returns>Task or 404 if Task not found</returns>
+        [AuthorizeJwt]
         [HttpGet("get_by_id")]
         public async Task<IActionResult> GetTaskById(Guid taskId)
         {
@@ -282,6 +288,7 @@ namespace TaskDo.Controllers
         /// <param name="page">Current page number for pagination.</param>
         /// <param name="order">Optional. Order of the tasks (0 - by StartDate, 1 - by EndDate).</param>
         /// <returns>Returns tasks based on pagination.</returns>
+        [AuthorizeJwt]
         [HttpGet("get_n_per_page")]
         public async Task<IActionResult> GetTasksPerPage(int numberOfTasksPerPage, int page, byte? order = 0)
         {
@@ -317,16 +324,11 @@ namespace TaskDo.Controllers
         /// Get all tasks for the given Employee
         /// </summary>
         /// <returns>List of Tasks</returns>
-        [Authorize]
+        [AuthorizeJwt]
         [HttpGet("get_employee_tasks")]
         public async Task<IActionResult> GetEmployeeTasks()
         {
-            var token = JwtRetriever.GetTokenFromHeader(HttpContext.Request.Headers);
-
-            if (token == null)
-            {
-                return NotFound("Token was not found!");
-            }
+            var token = JwtUtils.JwtRetriever.GetTokenFromHeader(HttpContext.Request.Headers);
 
             var user = JwtDecoder.GetUserByToken(token, _context);
 
