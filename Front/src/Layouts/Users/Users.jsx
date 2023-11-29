@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import fetch from '../../axiosInterceptor';
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -6,7 +7,12 @@ const UserList = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('https://localhost:7136/api/Home/allusers');
+        const response = await fetch('https://localhost:7136/api/Home/allusers', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
         const data = await response.json();
         setUsers(data);
       } catch (error) {

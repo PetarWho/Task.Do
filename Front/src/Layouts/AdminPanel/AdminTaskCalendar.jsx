@@ -5,16 +5,24 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useNavigate } from 'react-router-dom';
 import './styleCalendar.css';
+import fetch from '../../axiosInterceptor';
+
 
 const AdminCalendar = () => {
   const [tasks, setTasks] = useState([]);
   const navigate = useNavigate();
+  const authToken = localStorage.getItem('authToken');
 
   useEffect(() => {
     // Fetch tasks from the API
     const fetchTasks = async () => {
       try {
-        const response = await fetch('https://localhost:7136/api/tasks/all');
+        const response = await fetch('https://localhost:7136/api/tasks/all', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch tasks');
         }

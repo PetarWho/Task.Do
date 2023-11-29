@@ -4,6 +4,8 @@ import Button from "@mui/material/Button";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import { useNavigate, useLocation } from "react-router-dom";
+import fetch from '../../axiosInterceptor';
+
 
 function CreateSubtask() {
   const navigate = useNavigate();
@@ -11,12 +13,12 @@ function CreateSubtask() {
   const subtaskInfo = location.state
     ? location.state.subtask
     : {
-        id: "",
-        title: "",
-        description: "",
-        requiredPhotosCount: 0,
-        requiredNotesCount: 1,
-      };
+      id: "",
+      title: "",
+      description: "",
+      requiredPhotosCount: 0,
+      requiredNotesCount: 1,
+    };
   const [taskName, setTaskName] = useState(subtaskInfo.title || "");
   const [taskDescription, setTaskDescription] = useState(
     subtaskInfo.description || ""
@@ -35,7 +37,7 @@ function CreateSubtask() {
     ...subtaskInfo,
   });
   const [hasChanges, setHasChanges] = useState(false);
-
+  const authToken = localStorage.getItem('authToken');
   const isEditing = !!location.state?.subtask;
 
   useEffect(() => {
@@ -98,6 +100,7 @@ function CreateSubtask() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
           },
           body: JSON.stringify(data),
         }

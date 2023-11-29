@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import AdminCalendar from "../AdminPanel/AdminTaskCalendar";
 import TaskCalendar from "../TaskCalendar/TaskCalendar";
 import LoginForm from "../LoginForm";
+import fetch from '../../axiosInterceptor';
 
 function Home() {
   const [user, setUser] = useState(null);

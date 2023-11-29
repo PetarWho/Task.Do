@@ -11,6 +11,7 @@ import TaskIcon from '@mui/icons-material/Task';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import { Pagination } from '@mui/material';
+import fetch from '../../axiosInterceptor';
 
 
 function AdminTasks() {
@@ -18,11 +19,17 @@ function AdminTasks() {
   const [currentPage, setCurrentPage] = useState(1);
   const tasksPerPage = 5;
   const navigate = useNavigate();
+  const authToken = localStorage.getItem('authToken');
 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await fetch('https://localhost:7136/api/tasks/all');
+        const response = await fetch('https://localhost:7136/api/tasks/all', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
         if (response.ok) {
           const data = await response.json();
           setTasks(data);

@@ -6,13 +6,12 @@ import {Typography} from '@mui/material';
 function LoginForm() {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
-
   const handleLogin = async (data) => {
     try {
       const response = await fetch("https://localhost:7136/api/Account/login", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
         body: JSON.stringify(data),
       });

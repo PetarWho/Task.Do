@@ -9,11 +9,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { Link, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import Button from "@mui/material/Button";
-import { Token } from "@mui/icons-material";
+import fetch from '../../axiosInterceptor';
+
 
 const CreateTask = () => {
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
   const navigate = useNavigate();
   const location = useLocation();
   const [subTasks, setSubTasks] = useState([
@@ -21,6 +20,7 @@ const CreateTask = () => {
     { id: 2, title: "SubTask 2", description: "SubDescription 2" },
     { id: 3, title: "SubTask 3", description: "SubDescription 3" },
   ]);
+  const authToken = localStorage.getItem('authToken');
 
   const [assignedUsers, setAssignedUsers] = useState([]);
   const [submittedSubtask, setSubmittedSubtask] = useState(null);
@@ -70,7 +70,8 @@ const CreateTask = () => {
       const response = await fetch(apiUrl, {
         method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`
         },
       });
   
@@ -139,6 +140,7 @@ const CreateTask = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`
           },
         }
       );
