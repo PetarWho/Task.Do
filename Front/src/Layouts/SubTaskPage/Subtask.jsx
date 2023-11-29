@@ -8,7 +8,7 @@ import SpinnerLoading from "../Utils/SpinnerLoading";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { useNavigate, useParams } from "react-router-dom";
-import fetch from '../../axiosInterceptor';
+import fetch from "../../axiosInterceptor";
 
 function Subtask() {
   const navigate = useNavigate();
@@ -17,18 +17,20 @@ function Subtask() {
   const [fileName, setFileName] = useState("");
   const [noteText, setNoteText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const authToken = localStorage.getItem('authToken');
+  const authToken = localStorage.getItem("authToken");
 
   useEffect(() => {
     const fetchSubtaskData = async () => {
       try {
         const response = await fetch(
-          `https://localhost:7136/api/subtasks/get_by_id?subtaskId=${subtaskId}`, {
-            method: 'GET',
+          `https://localhost:7136/api/subtasks/get_by_id?subtaskId=${subtaskId}`,
+          {
+            method: "GET",
             headers: {
               Authorization: `Bearer ${authToken}`,
             },
-          });
+          }
+        );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -47,45 +49,51 @@ function Subtask() {
 
   const handleFile = async (file) => {
     setFileName(file.name);
-  
+
     const reader = new FileReader();
-  
+
     reader.onload = async (event) => {
       try {
-        const response = await fetch(`https://localhost:7136/api/subtasks/add_image?subtaskId=${subtask.Id}&imagePath=${file.name}`, {
-          method: "POST",
-          headers:{
-            "Content-Type": `application/json;`,
-            Authorization: `Bearer ${authToken}`
+        const arrayBuffer = event.target.result;
+        const byteArray = new Uint8Array(arrayBuffer);
+
+        const response = await fetch(
+          `https://localhost:7136/api/subtasks/add_image?subtaskId=${subtask.Id}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/octet-stream",
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: byteArray,
           }
-        });
-  
+        );
+
         if (!response.ok) {
           throw new Error("Image upload failed");
         }
-  
+
         setIsLoading(false);
       } catch (error) {
         console.error("Error uploading image:", error);
       }
     };
-  
-    reader.readAsDataURL(file); 
+
+    reader.readAsArrayBuffer(file);
   };
 
   const addNote = async () => {
     try {
-      const formData = new FormData();
-      formData.append("subtaskId", subtask.Id); 
-      formData.append("noteText", noteText);
-
-      const response = await fetch(`https://localhost:7136/api/subtasks/add_note?subtaskId=${subtask.Id}&noteText=${noteText}`, {
-        method: "POST",
-        headers:{
-          "Content-Type": `application/json;`,
-          Authorization: `Bearer ${authToken}`
+      const response = await fetch(
+        `https://localhost:7136/api/subtasks/add_note?subtaskId=${subtask.Id}&noteText=${noteText}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json;",
+            Authorization: `Bearer ${authToken}`,
+          },
         }
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Adding note failed");
@@ -104,7 +112,7 @@ function Subtask() {
   return (
     <Box sx={{ flexGrow: 1, maxWidth: "100%" }}>
       <Grid container spacing={2}>
-        <Grid item xs={1} md={1} sx={{marginTop: '10px'}}>
+        <Grid item xs={1} md={1} sx={{ marginTop: "10px" }}>
           <BackButton />
         </Grid>
 
