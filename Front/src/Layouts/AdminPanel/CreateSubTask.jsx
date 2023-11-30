@@ -13,7 +13,6 @@ function CreateSubtask() {
   const subtaskInfo = location.state
     ? location.state.subtask
     : {
-      id: "",
       title: "",
       description: "",
       requiredPhotosCount: 0,
