@@ -15,11 +15,8 @@ import fetch from '../../axiosInterceptor';
 const CreateTask = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [subTasks, setSubTasks] = useState([
-    { id: 1, title: "SubTask 1", description: "SubDescription 1" },
-    { id: 2, title: "SubTask 2", description: "SubDescription 2" },
-    { id: 3, title: "SubTask 3", description: "SubDescription 3" },
-  ]);
+  const [task,setTask]=useState();
+  const [subTasks, setSubTasks] = useState([]);
   const authToken = localStorage.getItem('authToken');
 
   const [assignedUsers, setAssignedUsers] = useState([]);
@@ -30,6 +27,11 @@ const CreateTask = () => {
   const [userOptions, setUserOptions] = useState([]);
   const [newUserName, setNewUserName] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
+
+  const [taskTitle, setTaskTitle] = useState('');
+  const [taskDescription, setTaskDescription] = useState('');
+  const [taskStartDate, setTaskStartDate] = useState('');
+  const [taskEndDate, setTaskEndDate] = useState('');
 
   const openAddUserDialog = () => {
     setAddUserDialogOpen(true);
@@ -85,25 +87,13 @@ const CreateTask = () => {
 
   const handleCreateTask = async () => {
     const requestData = {
-      title: "Task Title2",
-      description: "Task Description2",
-      startDate: "10/01/2023",
-      endDate: "10/02/2023",
-      subtasks: [
-        {
-          title: "Subtask Title2",
-          description: "Subtask Description2",
-          requiredPhotosCount: 1,
-          requiredNotesCount: 1,
-        },
-      ],
-      employees: [
-        {
-          employeeId: "9a5758dc-5eb8-426a-ae86-d86b1fddfbff",
-        },
-      ],
+      title: taskTitle,
+      description: taskDescription,
+      startDate: taskStartDate,
+      endDate: taskEndDate,
+      subtasks: subTasks, // Assuming subTasks is an array of subtask objects
+      employees: assignedUsers.map(user => user.EmployeeId),
     };
-
     try {
       const response = await fetch("https://localhost:7136/api/tasks/create", {
         method: "POST",
@@ -148,7 +138,7 @@ const CreateTask = () => {
       if (response.ok) {
         const userData = await response.json();
         return userData.map((user) => ({
-          id: user.employeeId,
+          id: user.id,
           username: user.userName,
         }));
       } else {
@@ -190,15 +180,17 @@ const CreateTask = () => {
       <Grid item xs={6}>
         <Grid container spacing={2} sx={{ margin: "10px" }}>
           <Grid item xs={12}>
-            <TextField
+          <TextField
               fullWidth
               label="Task Name"
               variant="outlined"
               margin="normal"
+              value={taskTitle}
+              onChange={(e) => setTaskTitle(e.target.value)}
             />
           </Grid>
           <Grid item xs={12}>
-            <TextField
+          <TextField
               fullWidth
               label="Task Description"
               multiline
@@ -206,11 +198,13 @@ const CreateTask = () => {
               placeholder="Enter Task Description"
               variant="outlined"
               margin="normal"
+              value={taskDescription}
+              onChange={(e) => setTaskDescription(e.target.value)}
             />
           </Grid>
           <Grid item xs={6}>
             <form noValidate>
-              <TextField
+            <TextField
                 id="datetime-local-start"
                 label="Start time"
                 type="datetime-local"
@@ -218,12 +212,14 @@ const CreateTask = () => {
                 InputLabelProps={{
                   shrink: true,
                 }}
+                value={taskStartDate}
+                onChange={(e) => setTaskStartDate(e.target.value)}
               />
             </form>
           </Grid>
           <Grid item xs={6}>
             <form noValidate>
-              <TextField
+            <TextField
                 id="datetime-local-end"
                 label="End time"
                 type="datetime-local"
@@ -231,6 +227,8 @@ const CreateTask = () => {
                 InputLabelProps={{
                   shrink: true,
                 }}
+                value={taskEndDate}
+                onChange={(e) => setTaskEndDate(e.target.value)}
               />
             </form>
           </Grid>
