@@ -85,12 +85,22 @@ const CreateTask = () => {
     }
   };
 
+  const formatDate = (date) => {
+    const formattedDate = new Date(date);
+    const day = formattedDate.getDate().toString().padStart(2, '0');
+    const month = (formattedDate.getMonth() + 1).toString().padStart(2, '0');
+    const year = formattedDate.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+  
+  
+
   const handleCreateTask = async () => {
     const requestData = {
       title: taskTitle,
       description: taskDescription,
-      startDate: taskStartDate,
-      endDate: taskEndDate,
+      startDate: formatDate(taskStartDate),
+      endDate: formatDate(taskEndDate),
       subtasks: subTasks, // Assuming subTasks is an array of subtask objects
       employees: assignedUsers.map(user => user.EmployeeId),
     };
@@ -138,7 +148,7 @@ const CreateTask = () => {
       if (response.ok) {
         const userData = await response.json();
         return userData.map((user) => ({
-          id: user.id,
+          EmployeeId: user.id,
           username: user.userName,
         }));
       } else {
