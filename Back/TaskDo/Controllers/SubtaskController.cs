@@ -6,6 +6,7 @@ using TaskDo.Data;
 using TaskDo.Data.Entities;
 using TaskDo.Models.Subtask;
 using TaskDo.Utils.Attributes;
+using TaskDo.Utils.Drive;
 
 namespace TaskDo.Controllers
 {
@@ -140,6 +141,10 @@ namespace TaskDo.Controllers
                 return NotFound("No such subtask");
             }
             var serializedTask = JsonSerializer.Serialize(subtask, _jsonOptions);
+            Console.WriteLine("Subtask Notes: " + string.Join(", ", subtask.Notes?.Select(n => n.Text)));
+            Console.WriteLine("Subtask Images: " + string.Join(", ", subtask.Images?.Select(i => i.URL)));
+            await Console.Out.WriteLineAsync(serializedTask);
+
             return Ok(serializedTask);
         }
 
@@ -202,12 +207,13 @@ namespace TaskDo.Controllers
                 {
                     Directory.CreateDirectory(imagesFolderPath);
                 }
-                var completeImagePath = Path.Combine(contentRootPath, imagePath);
-                image.URL = completeImagePath;
 
                 // Save the image file to the content root/Images folder
                 var physicalPath = Path.Combine(contentRootPath, imagePath);
                 await System.IO.File.WriteAllBytesAsync(physicalPath, imageData);
+
+                var imageUrl = GoogleDriveUtils.UploadImageToDrive(contentRootPath, fileName);
+                image.URL = imageUrl;
 
                 _context.Pictures.Add(image);
 

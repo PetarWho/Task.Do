@@ -9,6 +9,8 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { useNavigate, useParams } from "react-router-dom";
 import fetch from "../../axiosInterceptor";
+import './subtask.css';
+
 
 function Subtask() {
   const navigate = useNavigate();
@@ -117,10 +119,62 @@ function Subtask() {
         </Grid>
 
         <Grid item xs={12} md={12}>
-          <Typography variant="h5">{subtask.title}</Typography>
-          <Typography variant="body1">{subtask.description}</Typography>
+          <Typography variant="h5">{subtask.Title}</Typography>
+          <Typography variant="body1">{subtask.Description}</Typography>
         </Grid>
 
+        {/* Display Subtask Properties */}
+        <Grid item xs={12} md={12}>
+          <Typography variant="body1">Photos: {subtask.Images.$values.length}/{subtask.RequiredPhotosCount}</Typography>
+          <Typography variant="body1">Notes: {subtask.Notes.$values.length}/{subtask.RequiredNotesCount}</Typography>
+          <Typography variant="body1">{subtask.IsFinished ? "Finished" : "Unfinished"}</Typography>
+        </Grid>
+
+        {/* Display Uploaded Images */}
+        <Grid item xs={12} md={12}>
+          <Typography variant="h6">Uploaded Images</Typography>
+          {subtask.Images && subtask.Images.$values && subtask.Images.$values.length > 0 ? (
+            (() => {
+              console.log(subtask.Images);
+              const imageElements = [];
+              for (let i = 0; i < subtask.Images.$values.length; i++) {
+                const image = subtask.Images.$values[i];
+                imageElements.push(
+                  <div key={image.Id}>
+                    <img class="subtask-image" src={image.URL} alt={`Image ${image.Id}`} />
+                  </div>
+                );
+              }
+              return imageElements;
+            })()
+          ) : (
+            <Typography variant="body1">No images uploaded</Typography>
+          )}
+        </Grid>
+
+
+        {/* Display Added Notes */}
+        <Grid item xs={12} md={12}>
+          <Typography variant="h6">Added Notes</Typography>
+          {subtask.Notes && subtask.Notes.$values && subtask.Notes.$values.length > 0 ? (
+            (() => {
+              const noteElements = [];
+              for (let i = 0; i < subtask.Notes.$values.length; i++) {
+                const note = subtask.Notes.$values[i];
+                noteElements.push(
+                  <Typography key={note.Id} variant="body1" gutterBottom>
+                    Note ID: {note.Id} - {note.Text}
+                  </Typography>
+                );
+              }
+              return noteElements;
+            })()
+          ) : (
+            <Typography variant="body1">No notes added</Typography>
+          )}
+        </Grid>
+
+        {/* FileUploader and Add Note Sections */}
         <Grid item xs={12} md={12}>
           <FileUploader handleFile={handleFile} />
           {fileName && <p>Uploaded file: {fileName}</p>}
@@ -152,4 +206,6 @@ function Subtask() {
   );
 }
 
+
 export default Subtask;
+

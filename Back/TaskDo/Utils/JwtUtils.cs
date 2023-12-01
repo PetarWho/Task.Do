@@ -76,7 +76,7 @@ namespace TaskDo.Utils
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var securityToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
 
-                if (securityToken == null || securityToken.ValidTo == null)
+                if (securityToken == null || securityToken?.ValidTo == null)
                 {
                     throw new ArgumentException("Invalid token or missing expiration date.");
                 }
