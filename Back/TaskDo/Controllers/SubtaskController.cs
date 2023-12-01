@@ -141,8 +141,6 @@ namespace TaskDo.Controllers
                 return NotFound("No such subtask");
             }
             var serializedTask = JsonSerializer.Serialize(subtask, _jsonOptions);
-            Console.WriteLine("Subtask Notes: " + string.Join(", ", subtask.Notes?.Select(n => n.Text)));
-            Console.WriteLine("Subtask Images: " + string.Join(", ", subtask.Images?.Select(i => i.URL)));
             await Console.Out.WriteLineAsync(serializedTask);
 
             return Ok(serializedTask);

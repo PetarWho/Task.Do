@@ -64,7 +64,7 @@ namespace TaskDo.Controllers
                 startDate = DateTime.ParseExact(taskModel.StartDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
                 endDate = DateTime.ParseExact(taskModel.EndDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest("Invalid date format. Use dd/MM/yyyy");
             }
@@ -191,7 +191,7 @@ namespace TaskDo.Controllers
                 startDate = DateTime.ParseExact(updatedTask.StartDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
                 endDate = DateTime.ParseExact(updatedTask.EndDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest("Invalid date format. Use dd/MM/yyyy");
             }
@@ -329,6 +329,11 @@ namespace TaskDo.Controllers
         public async Task<IActionResult> GetEmployeeTasks()
         {
             var token = JwtUtils.JwtRetriever.GetTokenFromHeader(HttpContext.Request.Headers);
+
+            if (token == null)
+            {
+                return BadRequest("Invalid Token");
+            }
 
             var user = JwtDecoder.GetUserByToken(token, _context);
 
