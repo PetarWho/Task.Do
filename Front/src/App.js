@@ -14,6 +14,7 @@ import LoginForm from "./Layouts/LoginForm";
 import PrivateRoutes from "./Layouts/Utils/PrivateRoutes";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./Layouts/Home/Home";
+import Profile from "./Layouts/Profile/Profile";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/createSubtask" element={<CreateSubtask />} />
           <Route path="/task/:taskId" element={<Task />} />
           <Route path="/subtask/:subtaskId" element={<Subtask />} />
+          <Route path="/profile/:userId" element={<Profile />} />
           </Route>
         </Routes>
       </BrowserRouter>
