@@ -112,8 +112,12 @@ namespace TaskDo.Controllers
             var subtasks = await _context.Subtasks.Include(x => x.Notes).Include(x => x.Images).Where(x => x.TaskId == taskId)
                 .Select(x => new
                 {
-                    x.Id, x.Title, x.RequiredNotesCount, x.RequiredPhotosCount, x.IsFinished, 
-                    NotesCount = x.Notes.Count(), 
+                    x.Id,
+                    x.Title,
+                    x.RequiredNotesCount,
+                    x.RequiredPhotosCount,
+                    x.IsFinished,
+                    NotesCount = x.Notes.Count(),
                     PhotosCount = x.Images.Count()
                 }).ToListAsync();
             return Ok(subtasks);
@@ -152,14 +156,23 @@ namespace TaskDo.Controllers
         [HttpPost("add_image")]
         public async Task<IActionResult> AddImageToSubtask(Guid subtaskId)
         {
+            var subtask = await _context.Subtasks.Include(x => x.Images).Include(x => x.Notes).Include(x => x.Task).FirstOrDefaultAsync(x => x.Id == subtaskId);
+
+            if (subtask == null)
+            {
+                return NotFound("Subtask not found");
+            }
             try
             {
-                var subtask = await _context.Subtasks.FindAsync(subtaskId);
-                if (subtask == null)
-                {
-                    return NotFound("Subtask not found");
-                }
+                CheckTaskStatus(subtask.Task);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
+            try
+            {
                 var image = new Picture
                 {
                     SubtaskId = subtaskId
@@ -197,8 +210,21 @@ namespace TaskDo.Controllers
                 await System.IO.File.WriteAllBytesAsync(physicalPath, imageData);
 
                 _context.Pictures.Add(image);
-                await _context.SaveChangesAsync();
 
+                try
+                {
+                    if (subtask.Task == null)
+                    {
+                        throw new ArgumentException("Task associated with this subtask not found");
+                    }
+                    CheckCompletion(subtask);
+                }
+                catch (ArgumentException ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+
+                await _context.SaveChangesAsync();
                 return Ok();
             }
             catch (Exception ex)
@@ -234,11 +260,20 @@ namespace TaskDo.Controllers
         [HttpPost("add_note")]
         public async Task<IActionResult> AddNoteToSubtask(Guid subtaskId, string noteText)
         {
-            var subtask = await _context.Subtasks.Include(x => x.Images).Include(x => x.Notes).FirstOrDefaultAsync(x => x.Id == subtaskId);
+            var subtask = await _context.Subtasks.Include(x => x.Images).Include(x => x.Notes).Include(x => x.Task).FirstOrDefaultAsync(x => x.Id == subtaskId);
             if (subtask == null)
             {
                 return NotFound("Subtask not found");
             }
+            try
+            {
+                CheckTaskStatus(subtask.Task);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
             var note = new Note()
             {
                 SubtaskId = subtaskId,
@@ -246,14 +281,13 @@ namespace TaskDo.Controllers
             };
 
             await _context.AddAsync(note);
-            var task = await _context.Tasks.Include(x => x.Subtasks).FirstOrDefaultAsync(x => x.Id == subtask.TaskId);
             try
             {
-                if (task == null)
+                if (subtask.Task == null)
                 {
                     throw new ArgumentException("Task associated with this subtask not found");
                 }
-                CheckCompletion(subtask, task);
+                CheckCompletion(subtask);
             }
             catch (ArgumentException ex)
             {
@@ -267,20 +301,31 @@ namespace TaskDo.Controllers
 
         #region Check Subtask
 
-        private void CheckCompletion(Subtask subtask, Data.Entities.Task task)
+        private void CheckCompletion(Subtask subtask)
         {
             if (subtask.Images.Count() >= subtask.RequiredPhotosCount && subtask.Notes.Count() >= subtask.RequiredNotesCount)
             {
-                if (task != null && task.Status == Data.Entities.Enums.StatusEnum.Uncompleted)
-                {
-                    throw new ArgumentException("You cannot complete subtasks of Unfinished (Ended) Tasks.");
-                }
-
                 subtask.IsFinished = true;
-                if (task != null && task.Subtasks.All(x => x.IsFinished))
+                if (subtask.Task != null && subtask.Task.Subtasks.All(x => x.IsFinished))
                 {
-                    task.Status = Data.Entities.Enums.StatusEnum.Completed;
+                    subtask.Task.Status = Data.Entities.Enums.StatusEnum.Completed;
                 }
+            }
+        }
+
+        private void CheckTaskStatus(Data.Entities.Task task)
+        {
+            if (task.Status == Data.Entities.Enums.StatusEnum.Uncompleted)
+            {
+                throw new ArgumentException("Task was not completed in time, you cannot add a note!");
+            }
+            else if (task.Status == Data.Entities.Enums.StatusEnum.Completed)
+            {
+                throw new ArgumentException("Task has been completed, you cannot add more notes!");
+            }
+            else if (task.Status == Data.Entities.Enums.StatusEnum.Upcoming)
+            {
+                throw new ArgumentException("Task hasn't started yet, you cannot add a note!");
             }
         }
 
