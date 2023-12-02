@@ -56,7 +56,8 @@ namespace TaskDo.Controllers
                 UserName = model.Username,
                 Email = model.Email,
                 UserType = UserTypeEnum.Employee,
-                IsAvailable = true
+                IsAvailable = true,
+                ImageURL = @"https://lh3.googleusercontent.com/d/1fcm5fHDNnXoMb4orSFWEGeOUOXf2OD6e"
             };
 
 

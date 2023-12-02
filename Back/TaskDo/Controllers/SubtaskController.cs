@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Google.Apis.Drive.v3.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using TaskDo.Data;
 using TaskDo.Data.Entities;
 using TaskDo.Models.Subtask;
+using TaskDo.Utils;
 using TaskDo.Utils.Attributes;
 using TaskDo.Utils.Drive;
 
@@ -159,6 +161,18 @@ namespace TaskDo.Controllers
         [HttpPost("add_image")]
         public async Task<IActionResult> AddImageToSubtask(Guid subtaskId)
         {
+            var token = JwtUtils.JwtRetriever.GetTokenFromHeader(HttpContext.Request.Headers);
+            if (token == null)
+            {
+                return BadRequest("Invalid Token");
+            }
+
+            var user = JwtUtils.JwtDecoder.GetUserByToken(token, _context);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
             var subtask = await _context.Subtasks.Include(x => x.Images).Include(x => x.Notes).Include(x => x.Task).FirstOrDefaultAsync(x => x.Id == subtaskId);
 
             if (subtask == null)
@@ -193,7 +207,7 @@ namespace TaskDo.Controllers
                     return BadRequest("Invalid ContentType");
                 }
 
-                var fileExtension = GetFileExtension(Request.ContentType);
+                var fileExtension = FileUtils.GetFileExtension(Request.ContentType);
                 var fileName = $"{Guid.NewGuid()}{fileExtension}";
 
                 var imagePath = Path.Combine("Images", fileName);
@@ -228,25 +242,14 @@ namespace TaskDo.Controllers
                     return BadRequest(ex.Message);
                 }
 
+                subtask.UserId = user.Id;
+
                 await _context.SaveChangesAsync();
                 return Ok();
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        private string GetFileExtension(string contentType)
-        {
-            switch (contentType)
-            {
-                case "image/jpeg":
-                    return ".jpg";
-                case "image/png":
-                    return ".png";
-                default:
-                    return ".jpg";
             }
         }
 
@@ -264,6 +267,18 @@ namespace TaskDo.Controllers
         [HttpPost("add_note")]
         public async Task<IActionResult> AddNoteToSubtask(Guid subtaskId, string noteText)
         {
+            var token = JwtUtils.JwtRetriever.GetTokenFromHeader(HttpContext.Request.Headers);
+            if (token == null)
+            {
+                return BadRequest("Invalid Token");
+            }
+
+            var user = JwtUtils.JwtDecoder.GetUserByToken(token, _context);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
             var subtask = await _context.Subtasks.Include(x => x.Images).Include(x => x.Notes).Include(x => x.Task).FirstOrDefaultAsync(x => x.Id == subtaskId);
             if (subtask == null)
             {
@@ -297,6 +312,8 @@ namespace TaskDo.Controllers
             {
                 return BadRequest(ex.Message);
             }
+
+            subtask.UserId = user.Id;
             await _context.SaveChangesAsync();
             return Ok();
         }

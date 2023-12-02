@@ -6,5 +6,6 @@ namespace TaskDo.Data.Entities
     public abstract class User : IdentityUser
     {
         public UserTypeEnum UserType { get; set; } = 0;
+        public string? ImageURL { get; set; }
     }
 }
