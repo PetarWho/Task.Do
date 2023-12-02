@@ -6,7 +6,6 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Button } from "@mui/material";
@@ -40,7 +39,7 @@ function Header() {
   };
 
   const authToken = localStorage.getItem('authToken');
-  
+
   const handleLogout = async () => {
     try {
       const response = await fetch(
@@ -64,7 +63,16 @@ function Header() {
       console.error("Error logging out:", error);
     }
   };
-
+  const handleSettingClick = (setting) => {
+    if (setting === 'Logout') {
+      handleLogout();
+    } else if (setting === 'Profile') {
+      navigate('/profile');
+      handleCloseUserMenu();
+    } else {
+      handleCloseUserMenu();
+    }
+  };
   const navigateToLogin = () => {
     navigate("/login");
   };
@@ -100,7 +108,7 @@ function Header() {
   }, [authToken]);
 
   const isLoggedIn = authToken !== null;
-
+  const imageURL = localStorage.getItem('pfp');
   return (
     <AppBar position="static" sx={{ backgroundColor: "rgb(177, 226, 247)" }}>
       <Container maxWidth="xl">
@@ -133,19 +141,24 @@ function Header() {
               DiaDo
             </Typography>
             {isManager && (
-              <Button onClick={navigateToCreateTask} sx={{ ml: 3, color:"black", fontWeight:'bold', fontSize:'1rem', borderBottom:'1px solid black', fontFamily:'monospace' }}>
+              <Button onClick={navigateToCreateTask} sx={{ ml: 3, color: "black", fontWeight: 'bold', fontSize: '1rem', borderBottom: '1px solid black', fontFamily: 'monospace' }}>
                 Create Task
               </Button>
             )}
-            </Box>
-            <Box>
+          </Box>
+          <Box>
             {isLoggedIn ? (
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar
-                    alt="Remy Sharp"
-                    src="/static/images/avatar/2.jpg"
-                    sx={{ backgroundColor: "rgb(255, 74, 47)" }}
+                  <img
+                    src={imageURL} 
+                    alt="Profile Pic"
+                    referrerPolicy="no-referrer"
+                    style={{
+                      width: '36px', 
+                      height: '36px', 
+                      borderRadius: '50%', 
+                    }}
                   />
                 </IconButton>
               </Tooltip>
@@ -154,7 +167,7 @@ function Header() {
                 Sign In
               </Button>
             )}
-            </Box>
+          </Box>
 
           <Box sx={{ flexGrow: 0 }}>
             {isLoggedIn && (
@@ -166,17 +179,17 @@ function Header() {
                   defaultValue={date.someDate}
                 />
                 <Menu
-                  sx={{ mt: "45px" }}
+                  sx={{ mt: '45px' }}
                   id="menu-appbar"
                   anchorEl={anchorElUser}
                   anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
+                    vertical: 'top',
+                    horizontal: 'right',
                   }}
                   keepMounted
                   transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
+                    vertical: 'top',
+                    horizontal: 'right',
                   }}
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
@@ -184,9 +197,7 @@ function Header() {
                   {settings.map((setting) => (
                     <MenuItem
                       key={setting}
-                      onClick={
-                        setting === "Logout" ? handleLogout : handleCloseUserMenu
-                      }
+                      onClick={() => handleSettingClick(setting)}
                     >
                       <Typography textAlign="center">{setting}</Typography>
                     </MenuItem>

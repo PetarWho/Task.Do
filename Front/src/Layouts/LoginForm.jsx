@@ -40,9 +40,8 @@ function LoginForm() {
 
         if (userResponse.ok) {
           const userDetails = await userResponse.json();
-          console.log('User Details:', userDetails); // Log the response
-        
-          // Ensure that the structure of the userDetails object is as expected
+          console.log(userDetails);
+          localStorage.setItem("pfp", userDetails.imageURL);
           setUsername(userDetails.userName);
         } else {
           throw new Error(`Failed to fetch user details. Status: ${userResponse.status}`);
