@@ -2,8 +2,6 @@
 using Google.Apis.Drive.v3;
 using Google.Apis.Services;
 using Google.Apis.Upload;
-using Microsoft.AspNetCore.Hosting;
-using System.IO;
 
 namespace TaskDo.Utils.Drive
 {
