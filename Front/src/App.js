@@ -34,7 +34,7 @@ function App() {
           <Route path="/createSubtask" element={<CreateSubtask />} />
           <Route path="/task/:taskId" element={<Task />} />
           <Route path="/subtask/:subtaskId" element={<Subtask />} />
-          <Route path="/profile/:userId" element={<Profile />} />
+          <Route path="/profile/:uid?" element={<Profile />} />
           </Route>
         </Routes>
       </BrowserRouter>
