@@ -61,8 +61,8 @@ namespace TaskDo.Controllers
 
             try
             {
-                startDate = DateTime.ParseExact(taskModel.StartDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
-                endDate = DateTime.ParseExact(taskModel.EndDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                startDate = DateTime.ParseExact(taskModel.StartDate, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
+                endDate = DateTime.ParseExact(taskModel.EndDate, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {

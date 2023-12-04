@@ -11,6 +11,7 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import Button from '@mui/material/Button';
 import fetch from '../../axiosInterceptor';
 
 function Task() {
@@ -25,14 +26,14 @@ function Task() {
       try {
         const taskResponse = await fetch(`https://localhost:7136/api/tasks/get_by_id?taskId=${taskId}`, {
           method: "GET",
-          headers:{
+          headers: {
             "Content-Type": `application/json;`,
             Authorization: `Bearer ${authToken}`
           }
         });
         const subTasksResponse = await fetch(`https://localhost:7136/api/subtasks/all?taskId=${taskId}`, {
           method: "GET",
-          headers:{
+          headers: {
             "Content-Type": `application/json;`,
             Authorization: `Bearer ${authToken}`
           }
@@ -68,12 +69,26 @@ function Task() {
           <BackButton />
         </Grid>
 
+        {/* Edit Button */}
+        <Grid item xs={1} md={12} sx={{ textAlign: 'right', marginRight: '10px', marginTop: '-45px' }}>
+          <Button
+            variant="contained"
+            color="primary"
+            component={Link}
+            to={`/createTask/${taskId}`}
+          >
+            Edit
+          </Button>
+        </Grid>
+
         {/* Task Title */}
         <Grid item xs={12} md={12}>
           <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
             {task.title}
           </Typography>
         </Grid>
+
+
 
         {/* Task Description */}
         <Grid item xs={12} md={12}>
@@ -98,7 +113,7 @@ function Task() {
                 {subTasks.map((subTask) => (
                   <TableRow key={subTask.id}>
                     <TableCell style={{ paddingLeft: '40px' }}>
-                      <Link to={{ pathname: `/subtask/${subTask.id}`, state: { subtaskId: subTask.id } }} style={{textDecoration: 'none', fontSize: '1rem'}}>
+                      <Link to={{ pathname: `/subtask/${subTask.id}`, state: { subtaskId: subTask.id } }} style={{ textDecoration: 'none', fontSize: '1rem' }}>
                         {subTask.title}
                       </Link>
                     </TableCell>

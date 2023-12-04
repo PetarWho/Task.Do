@@ -1,8 +1,7 @@
 .fc-event.fc-event-start.fc-event-end.fc-event-today.fc-event-future.fc-timegrid-event.fc-v-event {
     height: auto;
     width: auto;
-    max-height: 10%;
-    max-width: 10%;
+    overflow: hidden;
 }
 .fc-event{
     max-width: fit-content;
