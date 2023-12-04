@@ -1,15 +1,13 @@
-
 import React from "react";
 import { List, ListItem, ListItemAvatar, ListItemText } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Link } from "react-router-dom";
 
-const SubtaskList = ({ subTasks, handleDeleteSubTask }) => {
+const SubtaskList = ({ subTasks, handleDeleteSubTask, handleEditSubtask }) => {
   return (
     <List>
-      {subTasks.map((subtask, index) => (
+      {subTasks.map((subtask) => (
         <ListItem
-          key={index}
+          key={subtask.id}
           sx={{
             border: "1px solid rgb(177, 226, 247)",
             margin: "10px",
@@ -18,21 +16,20 @@ const SubtaskList = ({ subTasks, handleDeleteSubTask }) => {
             justifyContent: "space-between",
           }}
         >
-          <Link
-            to={`/createSubtask`}
-            state={{ subtask: subtask }}
+          <ListItemText
+            primary={subtask.title}
+            onClick={() => handleEditSubtask(subtask.id)} // Invoke edit function without redirecting
             style={{
               textDecoration: "none",
               fontFamily: "Arial, sans-serif",
+              cursor: "pointer",
             }}
-          >
-            <ListItemText primary={subtask.title} />
-          </Link>
+          />
           <ListItemAvatar>
             <DeleteIcon
               onClick={() => handleDeleteSubTask(subtask.id)}
               style={{ cursor: "pointer" }}
-            ></DeleteIcon>
+            />
           </ListItemAvatar>
         </ListItem>
       ))}

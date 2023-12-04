@@ -31,7 +31,6 @@ function App() {
           <Route path="/calendar" element={<TaskCalendar />} />
           <Route path="/adminCalendar" element={<AdminCalendar />} />
           <Route path="/adminTasks" element={<AdminTasks />} />
-          <Route path="/createSubtask" element={<CreateSubtask />} />
           <Route path="/task/:taskId" element={<Task />} />
           <Route path="/subtask/:subtaskId" element={<Subtask />} />
           <Route path="/profile/:uid?" element={<Profile />} />

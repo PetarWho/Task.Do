@@ -113,7 +113,7 @@ const CreateTask = () => {
       description: taskDescription,
       startDate: formatDate(taskStartDate),
       endDate: formatDate(taskEndDate),
-      subtasks: subTasks, 
+      subtasks: subTasks,
       employees: assignedUsers.map((user) => ({ employeeId: user.EmployeeId })),
     };
     try {
@@ -136,7 +136,21 @@ const CreateTask = () => {
       console.error("An error occurred while creating the task", error);
     }
   };
+  const handleEditSubtask = (subtaskId) => {
+    const subtaskToEdit = subTasks.find((subtask) => subtask.id === subtaskId);
+    if (subtaskToEdit) {
+      setSubmittedSubtask(subtaskToEdit);
+      setSubtaskModalOpen(true);
+    }
+  };
 
+  const handleUpdateSubtask = (updatedSubtask) => {
+    const updatedSubtasks = subTasks.map((subtask) =>
+      subtask.id === updatedSubtask.id ? updatedSubtask : subtask
+    );
+    setSubTasks(updatedSubtasks);
+    setSubmittedSubtask(null);
+  };
 
   const handleAddUser = () => {
     if (selectedUser) {
@@ -213,7 +227,11 @@ const CreateTask = () => {
           setTaskEndDate={setTaskEndDate}
         />
         {/* Subtask List */}
-        <SubtaskList subTasks={subTasks} handleDeleteSubTask={handleDeleteSubTask} />
+        <SubtaskList
+          subTasks={subTasks}
+          handleDeleteSubTask={handleDeleteSubTask}
+          handleEditSubtask={handleEditSubtask}
+        />
         <Grid
           item
           xs={12}
@@ -242,7 +260,13 @@ const CreateTask = () => {
           <SubtaskModal
             isOpen={isSubtaskModalOpen}
             onClose={closeSubtaskModal}
-            onSubmit={handleSubtaskSubmit}
+            onSubmit={(newSubtask) => {
+              if (submittedSubtask) {
+                handleUpdateSubtask(newSubtask);
+              } else {
+                handleSubtaskSubmit(newSubtask);
+              }
+            }}
           />
           <Button
             variant="outlined"
@@ -255,12 +279,12 @@ const CreateTask = () => {
       </Grid>
 
       {/* Assigned Users */}
-      <AssignedUsers 
-      key="uniqueAssignedUsersKey" 
-      assignedUsers={assignedUsers} 
-      handleDeleteUser={handleDeleteUser} 
-      openAddUserDialog={openAddUserDialog} 
-    />
+      <AssignedUsers
+        key="uniqueAssignedUsersKey"
+        assignedUsers={assignedUsers}
+        handleDeleteUser={handleDeleteUser}
+        openAddUserDialog={openAddUserDialog}
+      />
       {/* Add User Dialog */}
       <AddUserDialog
         isOpen={isAddUserDialogOpen}
