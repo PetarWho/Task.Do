@@ -18,7 +18,7 @@ const FileUploader = ({ handleFile, imageURL=null }) => {
 
   return (
     <>
-      {!imageURL ? (
+      {!imageURL || imageURL === null ? (
         <Button
           onClick={handleClick}
           variant="contained"
@@ -26,6 +26,7 @@ const FileUploader = ({ handleFile, imageURL=null }) => {
         >
           Upload
         </Button>
+        
       ) : (
         <span onClick={handleClick}>
           <img
@@ -35,15 +36,15 @@ const FileUploader = ({ handleFile, imageURL=null }) => {
             referrerPolicy="no-referrer"
             title="Click to change"
           />
-          <input
+          
+        </span>
+      )}
+      <input
             type="file"
             onChange={handleChange}
             ref={hiddenFileInput}
             style={{ display: "none" }}
-          />
-        </span>
-      )}
-      {fileName && <p>Uploaded file: {fileName}</p>}
+          />  
     </>
   );
 };

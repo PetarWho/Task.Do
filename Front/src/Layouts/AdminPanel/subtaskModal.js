@@ -75,38 +75,6 @@ function SubtaskModal({ isOpen, onClose, onSubmit }) {
         setHasChanges(true);
     };
 
-    //Edit subTask Method
-    const EditSubtask = async () => {
-        const id = "AF90AB0C-96ED-4352-36B6-08DBEB63AB9D";
-        const data = {
-            title: "Subtask Title Edited",
-            description: "Subtask Description Edited",
-            requiredPhotosCount: 0,
-            requiredNotesCount: 1,
-        };
-        try {
-            const response = await fetch(
-                `https://localhost:7136/api/subtasks/edit?id=${id}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
-
-            if (response.ok) {
-                console.log("Task edited successfully:");
-            } else {
-                console.error("Failed to edit subtask");
-            }
-        } catch (error) {
-            console.error("An error occurred while editing the subtask", error);
-        }
-    };
-
     const handleSubmit = () => {
         const newSubtask = {
             title: taskName,
