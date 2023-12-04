@@ -20,6 +20,32 @@ function Subtask() {
   const [noteText, setNoteText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const authToken = localStorage.getItem("authToken");
+  const [userRole, setUserRole] = useState("");
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const response = await fetch("https://localhost:7136/api/Users/get_role", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+  
+  
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+  
+        const role = await response.text(); 
+        setUserRole(role); 
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+      }
+    };
+  
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
     const fetchSubtaskData = async () => {
@@ -174,33 +200,36 @@ function Subtask() {
           )}
         </Grid>
 
-        {/* FileUploader and Add Note Sections */}
-        <Grid item xs={12} md={12}>
-          <FileUploader handleFile={handleFile} />
-          {fileName && <p>Uploaded file: {fileName}</p>}
-        </Grid>
+        {!userRole.includes("Manager") && (
+          <>
+            <Grid item xs={12} md={12}>
+              <FileUploader handleFile={handleFile} />
+              {fileName && <p>Uploaded file: {fileName}</p>}
+            </Grid>
 
-        <Grid item xs={12} md={12}>
-          <TextField
-            id="note-text"
-            label="Leave a note"
-            multiline
-            rows={4}
-            variant="outlined"
-            value={noteText}
-            onChange={(e) => setNoteText(e.target.value)}
-          />
-        </Grid>
+            <Grid item xs={12} md={12}>
+              <TextField
+                id="note-text"
+                label="Leave a note"
+                multiline
+                rows={4}
+                variant="outlined"
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+              />
+            </Grid>
 
-        <Grid item xs={12} md={12}>
-          <Button
-            variant="contained"
-            onClick={addNote}
-            disabled={!fileName && !noteText}
-          >
-            Save Note
-          </Button>
-        </Grid>
+            <Grid item xs={12} md={12}>
+              <Button
+                variant="contained"
+                onClick={addNote}
+                disabled={!fileName && !noteText}
+              >
+                Save Note
+              </Button>
+            </Grid>
+          </>
+        )}
       </Grid>
     </Box>
   );

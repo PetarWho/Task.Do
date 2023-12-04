@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
-import { Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography,Autocomplete } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography, Autocomplete } from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
@@ -10,12 +10,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import Button from "@mui/material/Button";
 import fetch from '../../axiosInterceptor';
-
+import SubtaskModal from './subtaskModal';
 
 const CreateTask = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [task,setTask]=useState();
+  const [task, setTask] = useState();
   const [subTasks, setSubTasks] = useState([]);
   const authToken = localStorage.getItem('authToken');
 
@@ -32,7 +32,15 @@ const CreateTask = () => {
   const [taskDescription, setTaskDescription] = useState('');
   const [taskStartDate, setTaskStartDate] = useState('');
   const [taskEndDate, setTaskEndDate] = useState('');
+  const [isSubtaskModalOpen, setSubtaskModalOpen] = useState(false);
 
+  const openSubtaskModal = () => {
+    setSubtaskModalOpen(true);
+  };
+
+  const closeSubtaskModal = () => {
+    setSubtaskModalOpen(false);
+  };
   const openAddUserDialog = () => {
     setAddUserDialogOpen(true);
   };
@@ -42,6 +50,23 @@ const CreateTask = () => {
     setNewUserName(''); // Clear the input when the dialog is closed
   };
 
+  useEffect(() => {
+    const today = new Date();
+
+    const startDate = new Date(today.getTime() + 60 * 60 * 1000);
+    const endDate = new Date(today.getTime() + 2 * 60 * 60 * 1000);
+
+    const formattedStartDate = `${startDate.getFullYear()}-${(startDate.getMonth() + 1).toString().padStart(2, '0')
+      }-${startDate.getDate().toString().padStart(2, '0')}T${startDate.getHours().toString().padStart(2, '0')
+      }:00`;
+
+    const formattedEndDate = `${endDate.getFullYear()}-${(endDate.getMonth() + 1).toString().padStart(2, '0')
+      }-${endDate.getDate().toString().padStart(2, '0')}T${endDate.getHours().toString().padStart(2, '0')
+      }:00`;
+
+    setTaskStartDate(formattedStartDate);
+    setTaskEndDate(formattedEndDate);
+  }, []);
 
   useEffect(() => {
     const receivedData = location.state?.submittedSubtask;
@@ -57,32 +82,17 @@ const CreateTask = () => {
     }
   }, [submittedSubtask]);
 
-  const createSubtask = () => {
-    navigate("/createSubtask");
+  const handleSubtaskSubmit = (newSubtask) => {
+    setSubTasks([...subTasks, newSubtask]);
   };
 
   const handleDeleteUser = (userId) => {
     const updatedUsers = assignedUsers.filter((user) => user.id !== userId);
     setAssignedUsers(updatedUsers);
   };
-  const handleDeleteSubTask = async (subTaskId) => {
-    subTaskId = '550e8400-e29b-41d4-a716-446655440000'; //Hardcode example for Guid Id
-    try {
-      const apiUrl = `https://localhost:7136/api/subtasks/delete?id=${subTaskId}`;
-      const response = await fetch(apiUrl, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-    } catch (error) {
-      console.error('Error deleting subtask:', error);
-    }
+  const handleDeleteSubTask = (subTaskId) => {
+    const updatedSubTasks = subTasks.filter((subtask) => subtask.id !== subTaskId);
+    setSubTasks(updatedSubTasks);
   };
 
   const formatDate = (date) => {
@@ -90,10 +100,12 @@ const CreateTask = () => {
     const day = formattedDate.getDate().toString().padStart(2, '0');
     const month = (formattedDate.getMonth() + 1).toString().padStart(2, '0');
     const year = formattedDate.getFullYear();
-    return `${day}/${month}/${year}`;
+    const hours = formattedDate.getHours().toString().padStart(2, '0');
+    const minutes = formattedDate.getMinutes().toString().padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
   };
-  
-  
+
+
 
   const handleCreateTask = async () => {
     const requestData = {
@@ -101,8 +113,8 @@ const CreateTask = () => {
       description: taskDescription,
       startDate: formatDate(taskStartDate),
       endDate: formatDate(taskEndDate),
-      subtasks: subTasks, // Assuming subTasks is an array of subtask objects
-      employees: assignedUsers.map(user => user.EmployeeId),
+      subtasks: subTasks, // Updated to use subTasks from the frontend
+      employees: assignedUsers.map((user) => ({ employeeId: user.EmployeeId })),
     };
     try {
       const response = await fetch("https://localhost:7136/api/tasks/create", {
@@ -119,18 +131,19 @@ const CreateTask = () => {
       } else {
         console.error("Failed to create task");
       }
+      navigate("/")
     } catch (error) {
       console.error("An error occurred while creating the task", error);
     }
   };
 
-  
+
   const handleAddUser = () => {
     if (selectedUser) {
       setAssignedUsers((prevUsers) => [...prevUsers, selectedUser]);
       closeAddUserDialog();
     }
-  }; 
+  };
 
   const fetchUserOptions = async (inputValue) => {
     try {
@@ -169,11 +182,11 @@ const CreateTask = () => {
 
     loadUserOptions();
   }, [newUserName]);
-  
-  
+
+
 
   return (
-    <Grid container spacing={2} sx={{mb:10, mt:1}}>
+    <Grid container spacing={2} sx={{ mb: 10, mt: 1 }}>
       <Grid item xs={12}>
         <Typography
           style={{
@@ -190,7 +203,7 @@ const CreateTask = () => {
       <Grid item xs={6}>
         <Grid container spacing={2} sx={{ margin: "10px" }}>
           <Grid item xs={12}>
-          <TextField
+            <TextField
               fullWidth
               label="Task Name"
               variant="outlined"
@@ -200,7 +213,7 @@ const CreateTask = () => {
             />
           </Grid>
           <Grid item xs={12}>
-          <TextField
+            <TextField
               fullWidth
               label="Task Description"
               multiline
@@ -214,11 +227,10 @@ const CreateTask = () => {
           </Grid>
           <Grid item xs={6}>
             <form noValidate>
-            <TextField
+              <TextField
                 id="datetime-local-start"
                 label="Start time"
                 type="datetime-local"
-                defaultValue="2017-05-24T10:30"
                 InputLabelProps={{
                   shrink: true,
                 }}
@@ -229,11 +241,10 @@ const CreateTask = () => {
           </Grid>
           <Grid item xs={6}>
             <form noValidate>
-            <TextField
-                id="datetime-local-end"
+              <TextField
+                id="datetime-local-start"
                 label="End time"
                 type="datetime-local"
-                defaultValue="2017-05-24T10:30"
                 InputLabelProps={{
                   shrink: true,
                 }}
@@ -283,9 +294,9 @@ const CreateTask = () => {
           <Button
             variant="outlined"
             style={{ color: "green", borderColor: "green" }}
-            onClick={() => createSubtask()}
+            onClick={() => openSubtaskModal()}
           >
-            Add
+            Add Subtask
           </Button>
         </Grid>
         <Grid
@@ -299,18 +310,17 @@ const CreateTask = () => {
             gap: "10px",
           }}
         >
+          <SubtaskModal
+            isOpen={isSubtaskModalOpen}
+            onClose={closeSubtaskModal}
+            onSubmit={handleSubtaskSubmit}
+          />
           <Button
             variant="outlined"
             style={{ color: "green", borderColor: "green" }}
             onClick={handleCreateTask}
           >
-            Done
-          </Button>
-          <Button
-            variant="outlined"
-            style={{ color: "red", borderColor: "red" }}
-          >
-            Delete
+            Create
           </Button>
         </Grid>
       </Grid>
