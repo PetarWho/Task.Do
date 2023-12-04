@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
-import { Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography, Autocomplete } from "@mui/material";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import ListItemText from "@mui/material/ListItemText";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { Grid, TextField, Typography } from "@mui/material";
+
 import { Link, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import Button from "@mui/material/Button";
 import fetch from '../../axiosInterceptor';
 import SubtaskModal from './subtaskModal';
+import AddUserDialog from "./CreateTaskComponents/AddUserDialog";
+import AssignedUsers from "./CreateTaskComponents/AssignedUsers";
+import TaskDetails from "./CreateTaskComponents/TaskDetails";
+import SubtaskList from "./CreateTaskComponents/SubTaskList";
 
 const CreateTask = () => {
   const navigate = useNavigate();
@@ -200,91 +200,20 @@ const CreateTask = () => {
           Create Task
         </Typography>
       </Grid>
+      {/* Task Details */}
       <Grid item xs={6}>
-        <Grid container spacing={2} sx={{ margin: "10px" }}>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Task Name"
-              variant="outlined"
-              margin="normal"
-              value={taskTitle}
-              onChange={(e) => setTaskTitle(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Task Description"
-              multiline
-              rows={4}
-              placeholder="Enter Task Description"
-              variant="outlined"
-              margin="normal"
-              value={taskDescription}
-              onChange={(e) => setTaskDescription(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <form noValidate>
-              <TextField
-                id="datetime-local-start"
-                label="Start time"
-                type="datetime-local"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                value={taskStartDate}
-                onChange={(e) => setTaskStartDate(e.target.value)}
-              />
-            </form>
-          </Grid>
-          <Grid item xs={6}>
-            <form noValidate>
-              <TextField
-                id="datetime-local-start"
-                label="End time"
-                type="datetime-local"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                value={taskEndDate}
-                onChange={(e) => setTaskEndDate(e.target.value)}
-              />
-            </form>
-          </Grid>
-        </Grid>
-        <List>
-          {subTasks.map((subtask, index) => (
-            <ListItem
-              key={index}
-              sx={{
-                border: "1px solid rgb(177, 226, 247)",
-                margin: "10px",
-                width: "auto",
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
-              <Link
-                to={`/createSubtask`}
-                state={{ subtask: subtask }}
-                style={{
-                  textDecoration: "none",
-                  fontFamily: "Arial, sans-serif",
-                }}
-              >
-                <ListItemText primary={subtask.title} />
-              </Link>
-              <ListItemAvatar>
-                <DeleteIcon
-                  onClick={() => handleDeleteSubTask(subtask.id)}
-                  style={{ cursor: "pointer" }}
-                ></DeleteIcon>
-              </ListItemAvatar>
-            </ListItem>
-          ))}
-        </List>
+        <TaskDetails
+          taskTitle={taskTitle}
+          taskDescription={taskDescription}
+          taskStartDate={taskStartDate}
+          taskEndDate={taskEndDate}
+          setTaskTitle={setTaskTitle}
+          setTaskDescription={setTaskDescription}
+          setTaskStartDate={setTaskStartDate}
+          setTaskEndDate={setTaskEndDate}
+        />
+        {/* Subtask List */}
+        <SubtaskList subTasks={subTasks} handleDeleteSubTask={handleDeleteSubTask} />
         <Grid
           item
           xs={12}
@@ -324,68 +253,18 @@ const CreateTask = () => {
           </Button>
         </Grid>
       </Grid>
-      <Grid item xs={6}>
-        <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-          Assigned users
-        </Typography>
-        <List>
-          {assignedUsers.map((user) => (
-            <ListItem
-              key={user.id}
-              sx={{
-                margin: "10px",
-                width: "auto",
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
-              <ListItemText primary={user.username} />
-              <ListItemAvatar>
-                <DeleteIcon
-                  onClick={() => handleDeleteUser(user.id)}
-                  style={{ cursor: "pointer" }}
-                />
-              </ListItemAvatar>
-            </ListItem>
-          ))}
-        </List>
 
-        <Grid
-          item
-          xs={12}
-          md={12}
-          sx={{ display: "flex", justifyContent: "flex-end", margin: "20px" }}
-        >
-          <Button
-            variant="outlined"
-            style={{ color: 'green', borderColor: 'green' }}
-            onClick={openAddUserDialog}
-          >
-            Add Users
-          </Button>
-        </Grid>
-      </Grid>
+      {/* Assigned Users */}
+      <AssignedUsers assignedUsers={assignedUsers} handleDeleteUser={handleDeleteUser} openAddUserDialog={openAddUserDialog} />
       {/* Add User Dialog */}
-      <Dialog open={isAddUserDialogOpen} onClose={closeAddUserDialog}>
-        <DialogTitle>Add User</DialogTitle>
-        <DialogContent>
-          <Autocomplete
-            options={userOptions}
-            getOptionLabel={(user) => user.username}
-            value={selectedUser}
-            onChange={(event, newValue) => setSelectedUser(newValue)}
-            renderInput={(params) => (
-              <TextField {...params} label="Username" variant="outlined" fullWidth />
-            )}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeAddUserDialog}>Cancel</Button>
-          <Button onClick={handleAddUser} color="primary">
-            Add
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <AddUserDialog
+        isOpen={isAddUserDialogOpen}
+        onClose={closeAddUserDialog}
+        userOptions={userOptions}
+        selectedUser={selectedUser}
+        handleAddUser={handleAddUser}
+        handleUserChange={(event, newValue) => setSelectedUser(newValue)}
+      />
     </Grid>
   );
 };
