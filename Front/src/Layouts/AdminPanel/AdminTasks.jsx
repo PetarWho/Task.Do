@@ -112,13 +112,6 @@ function AdminTasks() {
           </Grid>
         </Grid>
       </Grid>
-      {totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      )}
     </Box>
 
   );

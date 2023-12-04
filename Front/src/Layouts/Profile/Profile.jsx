@@ -3,6 +3,7 @@ import fetch from "../../axiosInterceptor";
 import FileUploader from "../Utils/FileUploader";
 import SpinnerLoading from "../Utils/SpinnerLoading";
 import { useNavigate, useParams } from 'react-router-dom';
+
 import "./profile.css";
 
 function Profile() {

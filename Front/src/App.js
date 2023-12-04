@@ -27,7 +27,7 @@ function App() {
           <Route path="/Login" element={<LoginForm />} />
           <Route path="/register" element={<RegistrationForm />} />
           <Route element={<PrivateRoutes/>}>
-          <Route path="/createTask/:taskId?" element={<CreateTask />} />
+          <Route path="/createTask" element={<CreateTask />} />
           <Route path="/calendar" element={<TaskCalendar />} />
           <Route path="/adminCalendar" element={<AdminCalendar />} />
           <Route path="/adminTasks" element={<AdminTasks />} />

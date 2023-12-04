@@ -5,7 +5,7 @@ import { Dialog, DialogActions, DialogContent, DialogTitle, Autocomplete, TextFi
 
 const AddUserDialog = ({ isOpen, onClose, userOptions, selectedUser, handleAddUser, handleUserChange }) => {
   return (
-    <Dialog open={isOpen} onClose={onClose}>
+    <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth >
       <DialogTitle>Add User</DialogTitle>
       <DialogContent>
         <Autocomplete

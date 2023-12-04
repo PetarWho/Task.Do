@@ -5,12 +5,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 const AssignedUsers = ({ assignedUsers, handleDeleteUser, openAddUserDialog }) => {
   return (
     <Grid item xs={6}>
-      <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+      <Typography sx={{ mt: 4, mb: 2 }} variant="h5" component="div">
         Assigned users
       </Typography>
       <List>
         {assignedUsers.map((user, index) => (
-          <ListItem key={index} sx={{ margin: "10px", width: "auto", display: "flex", justifyContent: "space-between" }}>
+          <ListItem key={index} sx={{ margin: "15px", width: "auto", display: "flex", justifyContent: "space-between" }}>
             <ListItemText primary={user.username} />
             <ListItemAvatar>
               <DeleteIcon onClick={() => handleDeleteUser(user.id)} style={{ cursor: "pointer" }} />
