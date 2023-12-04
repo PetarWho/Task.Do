@@ -158,10 +158,12 @@ function Subtask() {
 
         {/* Display Uploaded Images */}
         <Grid item xs={12} md={12}>
+        
           <Typography variant="h6">Uploaded Images</Typography>
+          <div className="images-container">
           {subtask.Images && subtask.Images.$values && subtask.Images.$values.length > 0 ? (
             (() => {
-              console.log(subtask.Images);
+              
               const imageElements = [];
               for (let i = 0; i < subtask.Images.$values.length; i++) {
                 const image = subtask.Images.$values[i];
@@ -176,6 +178,7 @@ function Subtask() {
           ) : (
             <Typography variant="body1">No images uploaded</Typography>
           )}
+           </div>
         </Grid>
 
 
@@ -189,7 +192,7 @@ function Subtask() {
                 const note = subtask.Notes.$values[i];
                 noteElements.push(
                   <Typography key={note.Id} variant="body1" gutterBottom>
-                    Note ID: {note.Id} - {note.Text}
+                     {note.Text}
                   </Typography>
                 );
               }
@@ -219,7 +222,7 @@ function Subtask() {
               />
             </Grid>
 
-            <Grid item xs={12} md={12}>
+            <Grid item xs={12} md={12} sx={{ marginBottom: "120px" }}>
               <Button
                 variant="contained"
                 onClick={addNote}

@@ -1,4 +1,16 @@
-.subtask-image{
+.subtask-image {
+    height: 150px;
     width: 200px;
+    object-fit: cover;
     max-width: 200px;
+    margin-right: 10px; /* Adjust the spacing between images */
+    border: 1px solid #ddd;
+}
+
+.images-container {
+    display: flex;
+    overflow-x: auto; /* Enable horizontal scrolling if images exceed container width */
+    margin-bottom: 20px; /* Add space between images and other content */
+    justify-content: center;
+
 }
