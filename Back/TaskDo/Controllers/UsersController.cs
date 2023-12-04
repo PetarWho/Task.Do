@@ -162,7 +162,7 @@ namespace TaskDo.Controllers
             }
             if (user == null) return NotFound("User was not found");
 
-            var tasks = await context.Tasks.Include(x => x.EmployeeTasks).AsNoTracking().Select(x => x.EmployeeTasks.Any(et => et.EmployeeId == user.Id)).CountAsync();
+            var tasks = await context.Tasks.Include(x => x.EmployeeTasks).AsNoTracking().Where(x => x.EmployeeTasks.Any(et => et.EmployeeId == user.Id)).CountAsync();
             var finishedSubtasks = await context.Subtasks.AsNoTracking().Where(x => x.UserId == user.Id).Where(x => x.IsFinished == true).CountAsync();
             var model = new ProfileModel()
             {

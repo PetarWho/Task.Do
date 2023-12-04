@@ -1,9 +1,6 @@
-
-
 import React from "react";
-import { Typography, List, ListItem, ListItemAvatar, ListItemText,Button, Grid } from "@mui/material";
+import { Typography, List, ListItem, ListItemAvatar, ListItemText, Button, Grid } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-
 
 const AssignedUsers = ({ assignedUsers, handleDeleteUser, openAddUserDialog }) => {
   return (
@@ -12,8 +9,8 @@ const AssignedUsers = ({ assignedUsers, handleDeleteUser, openAddUserDialog }) =
         Assigned users
       </Typography>
       <List>
-        {assignedUsers.map((user) => (
-          <ListItem key={user.id} sx={{ margin: "10px", width: "auto", display: "flex", justifyContent: "space-between" }}>
+        {assignedUsers.map((user, index) => (
+          <ListItem key={index} sx={{ margin: "10px", width: "auto", display: "flex", justifyContent: "space-between" }}>
             <ListItemText primary={user.username} />
             <ListItemAvatar>
               <DeleteIcon onClick={() => handleDeleteUser(user.id)} style={{ cursor: "pointer" }} />
