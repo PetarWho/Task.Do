@@ -10,6 +10,7 @@ function Profile() {
     const [isLoading, setIsLoading] = useState(true);
     const [isCurrentUser, setIsCurrentUser] = useState(false);
     const [fileName, setFileName] = useState("");
+    const [isManager, setIsManager] = useState(false);
     const authToken = localStorage.getItem("authToken");
     const navigate = useNavigate();
     const { uid } = useParams();
@@ -20,7 +21,8 @@ function Profile() {
                 const user = await fetchUserProfileByToken(authToken);
                 if (user) {
                     setIsCurrentUser(user.id === uid || !uid);
-                    if (user.userType === 1) {
+                    if(user.userType === 1) setIsManager(true);
+                    if (user.userType === 1 && uid) {
                         const profile = await fetchUserProfileByUid(uid);
                         setProfileData(profile);
                     } else {
@@ -70,19 +72,19 @@ function Profile() {
                         },
                         body: byteArray,
                     }
-                    );
-                    
-                    if (!response.ok) {
-                        throw new Error("Image upload failed");
-                    }
-                    localStorage.setItem('pfp',  await response.text());
-                    window.location.reload(true);
-                    setIsLoading(false);
+                );
+
+                if (!response.ok) {
+                    throw new Error("Image upload failed");
+                }
+                localStorage.setItem('pfp', await response.text());
+                window.location.reload(true);
+                setIsLoading(false);
             } catch (error) {
                 console.error("Error uploading image:", error);
             }
         };
-        
+
         reader.readAsArrayBuffer(file);
     };
 
@@ -125,9 +127,14 @@ function Profile() {
                                 />
                             )}
                         </span>
-                        <p>{profileData.email}</p>
-                        <p><b>{profileData.userName}</b> has finished <b>{profileData.finishedSubtasks}</b> {profileData.finishedSubtasks === 1 ? "subtask" : "subtasks"}</p>
+                        {!isManager? (
+                            <>
+                            <p><b>{profileData.userName}</b> has finished <b>{profileData.finishedSubtasks}</b> {profileData.finishedSubtasks === 1 ? "subtask" : "subtasks"}</p>
                         <p>Part of {profileData.partOfTasks} tasks</p>
+                            </>
+                        ):""}
+                        <p>{profileData.email}</p>
+                        
                     </div>
                 </div>
             ) : (

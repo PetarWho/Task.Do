@@ -113,7 +113,7 @@ const CreateTask = () => {
       description: taskDescription,
       startDate: formatDate(taskStartDate),
       endDate: formatDate(taskEndDate),
-      subtasks: subTasks, // Updated to use subTasks from the frontend
+      subtasks: subTasks, 
       employees: assignedUsers.map((user) => ({ employeeId: user.EmployeeId })),
     };
     try {
@@ -255,7 +255,12 @@ const CreateTask = () => {
       </Grid>
 
       {/* Assigned Users */}
-      <AssignedUsers assignedUsers={assignedUsers} handleDeleteUser={handleDeleteUser} openAddUserDialog={openAddUserDialog} />
+      <AssignedUsers 
+      key="uniqueAssignedUsersKey" 
+      assignedUsers={assignedUsers} 
+      handleDeleteUser={handleDeleteUser} 
+      openAddUserDialog={openAddUserDialog} 
+    />
       {/* Add User Dialog */}
       <AddUserDialog
         isOpen={isAddUserDialogOpen}

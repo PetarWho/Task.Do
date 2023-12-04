@@ -33,3 +33,7 @@
 .fc-daygrid-day-number{
   text-decoration: none;
 }
+
+.fc-event-title, .fc-sticky{
+  padding-bottom:30px;
+}
