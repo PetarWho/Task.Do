@@ -22,6 +22,7 @@ function SubtaskModal({ isOpen, onClose, onSubmit, initialData }) {
   const [imageCount, setImageCount] = useState(0);
   const [noteCount, setNoteCount] = useState(1);
   const [isEditing, setIsEditing] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -99,6 +100,16 @@ function SubtaskModal({ isOpen, onClose, onSubmit, initialData }) {
   };
 
   const handleSubmit = () => {
+    
+      // Check if subtask name is empty
+      if (!taskName.trim()||!taskDescription.trim()) {
+        setErrorMsg("Subtask name and description are required!");
+        setTimeout(() => {
+          setErrorMsg("");
+        }, 4000);
+        return;
+      
+    }
     const updatedSubtask = {
       id: id,
       title: taskName,
@@ -248,7 +259,7 @@ function SubtaskModal({ isOpen, onClose, onSubmit, initialData }) {
         <Grid
           item
           xs={12}
-          style={{ display: "flex", justifyContent: "center" }}
+          sx={{ display: "felx", justifyContent: "center",alignItems:"center" }}
         >
           <Button
             variant="outlined"
@@ -257,7 +268,13 @@ function SubtaskModal({ isOpen, onClose, onSubmit, initialData }) {
             disabled={isEditing ? !hasChanges : false}
           >
             {isEditing ? "Save" : "Create"}
+           
           </Button>
+          {errorMsg && (
+            <Typography color="error" variant="subtitle2" sx={{ marginTop: 1 }}>
+              {errorMsg}
+            </Typography>
+          )}
         </Grid>
         {hasChanges && (
           <Grid

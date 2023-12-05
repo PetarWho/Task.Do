@@ -18,6 +18,7 @@ const CreateTask = () => {
   const [task, setTask] = useState();
   const [subTasks, setSubTasks] = useState([]);
   const authToken = localStorage.getItem("authToken");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const [assignedUsers, setAssignedUsers] = useState([]);
   const [submittedSubtask, setSubmittedSubtask] = useState(null);
@@ -63,21 +64,21 @@ const CreateTask = () => {
     )
       .toString()
       .padStart(2, "0")}-${startDate
-      .getDate()
-      .toString()
-      .padStart(2, "0")}T${startDate
-      .getHours()
-      .toString()
-      .padStart(2, "0")}:00`;
+        .getDate()
+        .toString()
+        .padStart(2, "0")}T${startDate
+          .getHours()
+          .toString()
+          .padStart(2, "0")}:00`;
 
     const formattedEndDate = `${endDate.getFullYear()}-${(
       endDate.getMonth() + 1
     )
       .toString()
       .padStart(2, "0")}-${endDate
-      .getDate()
-      .toString()
-      .padStart(2, "0")}T${endDate.getHours().toString().padStart(2, "0")}:00`;
+        .getDate()
+        .toString()
+        .padStart(2, "0")}T${endDate.getHours().toString().padStart(2, "0")}:00`;
 
     setTaskStartDate(formattedStartDate);
     setTaskEndDate(formattedEndDate);
@@ -134,6 +135,17 @@ const CreateTask = () => {
   };
 
   const handleCreateTask = async () => {
+
+    if (taskTitle.length === 0 ||taskDescription.length ===0 ||subTasks.length === 0 || assignedUsers.length === 0) {
+
+      setErrorMsg("All fields are required!");
+      setTimeout(() => {
+        setErrorMsg("");
+      }, 3000); 
+      return;
+    }
+
+    setErrorMsg("");
     const requestData = {
       title: taskTitle,
       description: taskDescription,
@@ -305,6 +317,11 @@ const CreateTask = () => {
           >
             Create
           </Button>
+          {errorMsg && (
+            <Typography color="error" variant="subtitle2" sx={{ marginTop: 1 }}>
+              {errorMsg}
+            </Typography>
+          )}
         </Grid>
       </Grid>
 
