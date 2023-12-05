@@ -5,9 +5,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 const SubtaskList = ({ subTasks, handleDeleteSubTask, handleEditSubtask }) => {
   return (
     <List>
-      {subTasks.map((subtask) => (
+      {subTasks.map((subtask, i) => (
         <ListItem
-          key={subtask.id}
+          key={i}
           sx={{
             border: "1px solid rgb(177, 226, 247)",
             margin: "10px",
@@ -18,7 +18,7 @@ const SubtaskList = ({ subTasks, handleDeleteSubTask, handleEditSubtask }) => {
         >
           <ListItemText
             primary={subtask.title}
-            onClick={() => handleEditSubtask(subtask.id)} // Invoke edit function without redirecting
+            onClick={() => handleEditSubtask(subtask)} // Invoke edit function without redirecting
             style={{
               textDecoration: "none",
               fontFamily: "Arial, sans-serif",

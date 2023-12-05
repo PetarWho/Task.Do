@@ -5,8 +5,8 @@ import { Grid, TextField, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import Button from "@mui/material/Button";
-import fetch from '../../axiosInterceptor';
-import SubtaskModal from './subtaskModal';
+import fetch from "../../axiosInterceptor";
+import SubtaskModal from "./subtaskModal";
 import AddUserDialog from "./CreateTaskComponents/AddUserDialog";
 import AssignedUsers from "./CreateTaskComponents/AssignedUsers";
 import TaskDetails from "./CreateTaskComponents/TaskDetails";
@@ -17,22 +17,24 @@ const CreateTask = () => {
   const location = useLocation();
   const [task, setTask] = useState();
   const [subTasks, setSubTasks] = useState([]);
-  const authToken = localStorage.getItem('authToken');
+  const authToken = localStorage.getItem("authToken");
 
   const [assignedUsers, setAssignedUsers] = useState([]);
   const [submittedSubtask, setSubmittedSubtask] = useState(null);
+  const [edit, setEdit] = useState(null);
 
   //for adding a user ot the task
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [userOptions, setUserOptions] = useState([]);
-  const [newUserName, setNewUserName] = useState('');
+  const [newUserName, setNewUserName] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
 
-  const [taskTitle, setTaskTitle] = useState('');
-  const [taskDescription, setTaskDescription] = useState('');
-  const [taskStartDate, setTaskStartDate] = useState('');
-  const [taskEndDate, setTaskEndDate] = useState('');
+  const [taskTitle, setTaskTitle] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
+  const [taskStartDate, setTaskStartDate] = useState("");
+  const [taskEndDate, setTaskEndDate] = useState("");
   const [isSubtaskModalOpen, setSubtaskModalOpen] = useState(false);
+  const [subTaskIdCounter, setSubTaskIdCounter] = useState(0);
 
   const openSubtaskModal = () => {
     setSubtaskModalOpen(true);
@@ -47,7 +49,7 @@ const CreateTask = () => {
 
   const closeAddUserDialog = () => {
     setAddUserDialogOpen(false);
-    setNewUserName(''); // Clear the input when the dialog is closed
+    setNewUserName(""); // Clear the input when the dialog is closed
   };
 
   useEffect(() => {
@@ -56,56 +58,80 @@ const CreateTask = () => {
     const startDate = new Date(today.getTime() + 60 * 60 * 1000);
     const endDate = new Date(today.getTime() + 2 * 60 * 60 * 1000);
 
-    const formattedStartDate = `${startDate.getFullYear()}-${(startDate.getMonth() + 1).toString().padStart(2, '0')
-      }-${startDate.getDate().toString().padStart(2, '0')}T${startDate.getHours().toString().padStart(2, '0')
-      }:00`;
+    const formattedStartDate = `${startDate.getFullYear()}-${(
+      startDate.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}-${startDate
+      .getDate()
+      .toString()
+      .padStart(2, "0")}T${startDate
+      .getHours()
+      .toString()
+      .padStart(2, "0")}:00`;
 
-    const formattedEndDate = `${endDate.getFullYear()}-${(endDate.getMonth() + 1).toString().padStart(2, '0')
-      }-${endDate.getDate().toString().padStart(2, '0')}T${endDate.getHours().toString().padStart(2, '0')
-      }:00`;
+    const formattedEndDate = `${endDate.getFullYear()}-${(
+      endDate.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}-${endDate
+      .getDate()
+      .toString()
+      .padStart(2, "0")}T${endDate.getHours().toString().padStart(2, "0")}:00`;
 
     setTaskStartDate(formattedStartDate);
     setTaskEndDate(formattedEndDate);
   }, []);
 
-  useEffect(() => {
-    const receivedData = location.state?.submittedSubtask;
-    if (receivedData) {
-      console.log("Received subtask data:", receivedData);
-      setSubmittedSubtask(receivedData);
-    }
-  }, [location.state]);
+  // useEffect(() => {
+  //   const receivedData = location.state?.submittedSubtask;
+  //   if (receivedData) {
+  //     console.log("Received subtask data:", receivedData);
+  //     setSubmittedSubtask(receivedData);
+  //   }
+  // }, [location.state]);
 
-  useEffect(() => {
-    if (submittedSubtask !== null) {
-      setSubTasks((prevState) => [...prevState, submittedSubtask]);
-    }
-  }, [submittedSubtask]);
+  // useEffect(() => {
+  //   if (submittedSubtask !== null) {
+  //     setSubTasks((prevState) => [...prevState, submittedSubtask]);
+  //   }
+  // }, [submittedSubtask]);
 
   const handleSubtaskSubmit = (newSubtask) => {
-    setSubTasks([...subTasks, newSubtask]);
+    // Generating a unique ID for the subtask
+    const subtaskWithId = {
+      ...newSubtask,
+      id: subTaskIdCounter, // Assigning the ID
+    };
+
+    // Incrementing the subtask ID counter for the next subtask
+    setSubTaskIdCounter(subTaskIdCounter + 1);
+
+    setSubTasks([...subTasks, subtaskWithId]);
   };
 
   const handleDeleteUser = (userId) => {
-    const updatedUsers = assignedUsers.filter((user) => user.id !== userId);
+    const updatedUsers = assignedUsers.filter(
+      (user) => user.EmployeeId !== userId
+    );
     setAssignedUsers(updatedUsers);
   };
   const handleDeleteSubTask = (subTaskId) => {
-    const updatedSubTasks = subTasks.filter((subtask) => subtask.id !== subTaskId);
+    const updatedSubTasks = subTasks.filter(
+      (subtask) => subtask.id !== subTaskId
+    );
     setSubTasks(updatedSubTasks);
   };
 
   const formatDate = (date) => {
     const formattedDate = new Date(date);
-    const day = formattedDate.getDate().toString().padStart(2, '0');
-    const month = (formattedDate.getMonth() + 1).toString().padStart(2, '0');
+    const day = formattedDate.getDate().toString().padStart(2, "0");
+    const month = (formattedDate.getMonth() + 1).toString().padStart(2, "0");
     const year = formattedDate.getFullYear();
-    const hours = formattedDate.getHours().toString().padStart(2, '0');
-    const minutes = formattedDate.getMinutes().toString().padStart(2, '0');
+    const hours = formattedDate.getHours().toString().padStart(2, "0");
+    const minutes = formattedDate.getMinutes().toString().padStart(2, "0");
     return `${day}/${month}/${year} ${hours}:${minutes}`;
   };
-
-
 
   const handleCreateTask = async () => {
     const requestData = {
@@ -131,16 +157,19 @@ const CreateTask = () => {
       } else {
         console.error("Failed to create task");
       }
-      navigate("/")
+      navigate("/");
     } catch (error) {
       console.error("An error occurred while creating the task", error);
     }
   };
-  const handleEditSubtask = (subtaskId) => {
-    const subtaskToEdit = subTasks.find((subtask) => subtask.id === subtaskId);
+  const handleEditSubtask = (subtaskk) => {
+    const subtaskToEdit = subTasks.find(
+      (subtask) => subtask.id === subtaskk.id
+    );
     if (subtaskToEdit) {
-      setSubmittedSubtask(subtaskToEdit);
+      setEdit(subtaskToEdit);
       setSubtaskModalOpen(true);
+      setSubmittedSubtask(subtaskToEdit);
     }
   };
 
@@ -149,6 +178,7 @@ const CreateTask = () => {
       subtask.id === updatedSubtask.id ? updatedSubtask : subtask
     );
     setSubTasks(updatedSubtasks);
+    console.log(updatedSubtasks);
     setSubmittedSubtask(null);
   };
 
@@ -167,7 +197,7 @@ const CreateTask = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`
+            Authorization: `Bearer ${authToken}`,
           },
         }
       );
@@ -196,8 +226,6 @@ const CreateTask = () => {
 
     loadUserOptions();
   }, [newUserName]);
-
-
 
   return (
     <Grid container spacing={2} sx={{ mb: 10, mt: 1 }}>
@@ -260,10 +288,12 @@ const CreateTask = () => {
           <SubtaskModal
             isOpen={isSubtaskModalOpen}
             onClose={closeSubtaskModal}
+            initialData={edit ? edit : null}
             onSubmit={(newSubtask) => {
               if (submittedSubtask) {
                 handleUpdateSubtask(newSubtask);
               } else {
+                setSubmittedSubtask(null);
                 handleSubtaskSubmit(newSubtask);
               }
             }}
