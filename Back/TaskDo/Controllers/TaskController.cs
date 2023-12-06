@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using TaskDo.Data;
 using TaskDo.Data.Entities;
 using TaskDo.Data.Entities.Enums;
+using TaskDo.Models.Subtask;
 using TaskDo.Models.Tasks;
 using TaskDo.Utils;
 using TaskDo.Utils.Attributes;
@@ -66,7 +67,7 @@ namespace TaskDo.Controllers
             }
             catch (Exception)
             {
-                return BadRequest("Invalid date format. Use dd/MM/yyyy");
+                return BadRequest("Invalid date format. Use dd/MM/yyyy HH:mm");
             }
 
             int status = 0;
@@ -164,18 +165,18 @@ namespace TaskDo.Controllers
         /// <summary>
         /// Action for editing Tasks
         /// </summary>
-        /// <param name="id">Task ID</param>
+        /// <param name="taskId">Task ID</param>
         /// <param name="updatedTask">Updated Task</param>
         /// <returns>200 for success or 404 if task not found or 400 for invalid model or dates</returns>
         [AuthorizeJwt]
         [HttpPut("edit")]
-        public IActionResult UpdateTask(Guid id, TaskModel updatedTask)
+        public IActionResult UpdateTask(Guid taskId, TaskModel updatedTask)
         {
-            var task = _context.Tasks.Find(id);
+            var task = _context.Tasks.FirstOrDefault(x=>x.Id==taskId);
 
             if (task == null)
             {
-                return NotFound();
+                return NotFound("Task was not found");
             }
 
             if (!ModelState.IsValid)
@@ -188,12 +189,12 @@ namespace TaskDo.Controllers
 
             try
             {
-                startDate = DateTime.ParseExact(updatedTask.StartDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
-                endDate = DateTime.ParseExact(updatedTask.EndDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                startDate = DateTime.ParseExact(updatedTask.StartDate, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
+                endDate = DateTime.ParseExact(updatedTask.EndDate, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
-                return BadRequest("Invalid date format. Use dd/MM/yyyy");
+                return BadRequest("Invalid date format. Use dd/MM/yyyy HH:mm ");
             }
 
             int status = 0;
@@ -217,9 +218,43 @@ namespace TaskDo.Controllers
             task.EndDate = endDate;
             task.Status = (StatusEnum)status;
 
+            var oldSubtasks = _context.Subtasks.Where(x=>x.TaskId == task.Id);
+            _context.Subtasks.RemoveRange(oldSubtasks);
+
+            foreach (var updatedSubtask in updatedTask.Subtasks)
+            {
+                task.Subtasks.Add(new Subtask
+                {
+                    Title = updatedSubtask.Title,
+                    Description = updatedSubtask.Description,
+                    RequiredNotesCount = updatedSubtask.RequiredNotesCount,
+                    RequiredPhotosCount = updatedSubtask.RequiredPhotosCount,
+                    IsFinished = false
+                });
+            }
+
+            var oldAssignees = _context.EmployeesTasks.Where(x => x.TaskId == task.Id);
+            _context.EmployeesTasks.RemoveRange(oldAssignees);
+
+            foreach (var updatedAssignee in updatedTask.Employees)
+            {
+                task.EmployeeTasks.Add(new EmployeeTask()
+                {
+                    EmployeeId = updatedAssignee.EmployeeId,
+                    TaskId = task.Id,
+                });
+            }
+
+
             _context.SaveChanges();
 
             return Ok("Edit Successful");
+        }
+
+        private bool CheckSameSubtasks(SubtaskModel subtask, Data.Entities.Task task)
+        {
+            return task.Subtasks.Any(x => x.Title == subtask.Title && x.Description == subtask.Description
+            && x.RequiredNotesCount == subtask.RequiredNotesCount && x.RequiredPhotosCount == subtask.RequiredPhotosCount);
         }
 
         #endregion
@@ -271,7 +306,17 @@ namespace TaskDo.Controllers
         [HttpGet("get_by_id")]
         public async Task<IActionResult> GetTaskById(Guid taskId)
         {
-            var task = await _context.Tasks.Include(x => x.Subtasks).IgnoreAutoIncludes().FirstOrDefaultAsync(x => x.Id == taskId);
+            var task = await _context.Tasks.Include(x => x.Subtasks).Include(x=>x.EmployeeTasks).ThenInclude(x=>x.Employee).IgnoreAutoIncludes()
+                .Select(x => new {
+                x.Id,
+                x.Title,
+                x.Description,
+                x.StartDate,
+                x.EndDate,
+                x.Status,
+                x.Subtasks,
+                Employees = x.EmployeeTasks.Select(x=>x.Employee)
+            }).FirstOrDefaultAsync(x => x.Id == taskId);
             if (task == null)
             {
                 return NotFound("No such task");

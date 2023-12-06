@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Grid, TextField } from "@mui/material";
+import "./task-style.css";
 
 const TaskDetails = ({ taskTitle, taskDescription, taskStartDate, taskEndDate, setTaskTitle, setTaskDescription, setTaskStartDate, setTaskEndDate }) => {
   return (
@@ -29,34 +30,36 @@ const TaskDetails = ({ taskTitle, taskDescription, taskStartDate, taskEndDate, s
           onChange={(e) => setTaskDescription(e.target.value)}
         />
       </Grid>
-      <Grid item xs={6}>
-        <form noValidate>
-          <TextField
-            id="datetime-local-start"
-            label="Start time"
-            type="datetime-local"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            value={taskStartDate}
-            onChange={(e) => setTaskStartDate(e.target.value)}
-          />
-        </form>
-      </Grid>
-      <Grid item xs={6}>
-        <form noValidate>
-          <TextField
-            id="datetime-local-start"
-            label="End time"
-            type="datetime-local"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            value={taskEndDate}
-            onChange={(e) => setTaskEndDate(e.target.value)}
-          />
-        </form>
-      </Grid>
+      <div className="task-date">
+        <Grid item >
+          <form className="date-form" noValidate>
+            <TextField
+              id="datetime-local-start"
+              label="Start time"
+              type="datetime-local"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              value={taskStartDate}
+              onChange={(e) => setTaskStartDate(e.target.value)}
+            />
+          </form>
+        </Grid>
+        <Grid item >
+          <form className="date-form" noValidate>
+            <TextField
+              id="datetime-local-start"
+              label="End time"
+              type="datetime-local"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              value={taskEndDate}
+              onChange={(e) => setTaskEndDate(e.target.value)}
+            />
+          </form>
+        </Grid>
+      </div>
     </Grid>
   );
 };

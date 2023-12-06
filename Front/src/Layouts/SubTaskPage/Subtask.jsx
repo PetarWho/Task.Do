@@ -219,7 +219,7 @@ return (
         )}
       </Grid>
 
-      {!userRole.includes("Manager") && (
+      {!userRole.includes("Manager") && subtask.Task.Status===1 && (
         <>
           <Grid item xs={12} md={12}>
             <FileUploader handleFile={handleFile} />

@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
-import { Grid, TextField, Typography } from "@mui/material";
-
-import { Link, useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { Grid, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import fetch from "../../axiosInterceptor";
 import SubtaskModal from "./subtaskModal";
@@ -14,8 +12,6 @@ import SubtaskList from "./CreateTaskComponents/SubTaskList";
 
 const CreateTask = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [task, setTask] = useState();
   const [subTasks, setSubTasks] = useState([]);
   const authToken = localStorage.getItem("authToken");
   const [errorMsg, setErrorMsg] = useState("");
@@ -24,7 +20,6 @@ const CreateTask = () => {
   const [submittedSubtask, setSubmittedSubtask] = useState(null);
   const [edit, setEdit] = useState(null);
 
-  //for adding a user ot the task
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [userOptions, setUserOptions] = useState([]);
   const [newUserName, setNewUserName] = useState("");
@@ -50,7 +45,7 @@ const CreateTask = () => {
 
   const closeAddUserDialog = () => {
     setAddUserDialogOpen(false);
-    setNewUserName(""); // Clear the input when the dialog is closed
+    setNewUserName("");
   };
 
   useEffect(() => {
@@ -84,28 +79,12 @@ const CreateTask = () => {
     setTaskEndDate(formattedEndDate);
   }, []);
 
-  // useEffect(() => {
-  //   const receivedData = location.state?.submittedSubtask;
-  //   if (receivedData) {
-  //     console.log("Received subtask data:", receivedData);
-  //     setSubmittedSubtask(receivedData);
-  //   }
-  // }, [location.state]);
-
-  // useEffect(() => {
-  //   if (submittedSubtask !== null) {
-  //     setSubTasks((prevState) => [...prevState, submittedSubtask]);
-  //   }
-  // }, [submittedSubtask]);
-
   const handleSubtaskSubmit = (newSubtask) => {
-    // Generating a unique ID for the subtask
     const subtaskWithId = {
       ...newSubtask,
-      id: subTaskIdCounter, // Assigning the ID
+      id: subTaskIdCounter, 
     };
 
-    // Incrementing the subtask ID counter for the next subtask
     setSubTaskIdCounter(subTaskIdCounter + 1);
 
     setSubTasks([...subTasks, subtaskWithId]);
