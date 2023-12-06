@@ -1,7 +1,7 @@
 .subtask-image {
     height: 150px;
     width: 200px;
-    object-fit: cover;
+    object-fit: contain;
     max-width: 200px;
     margin-right: 10px; /* Adjust the spacing between images */
     border: 1px solid #ddd;

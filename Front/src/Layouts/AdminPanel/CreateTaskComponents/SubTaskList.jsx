@@ -18,7 +18,7 @@ const SubtaskList = ({ subTasks, handleDeleteSubTask, handleEditSubtask }) => {
         >
           <ListItemText
             primary={subtask.title ?? subtask.Title}
-            onClick={() => handleEditSubtask(subtask)} // Invoke edit function without redirecting
+            onClick={() => handleEditSubtask(subtask)} 
             style={{
               textDecoration: "none",
               fontFamily: "Arial, sans-serif",
@@ -26,7 +26,7 @@ const SubtaskList = ({ subTasks, handleDeleteSubTask, handleEditSubtask }) => {
             }}
           />
           <ListItemAvatar>
-            <DeleteIcon
+            <DeleteIcon 
               onClick={() => handleDeleteSubTask(subtask.id ?? subtask.Id)}
               style={{ cursor: "pointer" }}
             />

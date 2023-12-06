@@ -20,6 +20,33 @@ function Task() {
   const [task, setTask] = useState({ Title: "", Description: "" });
   const [subTasks, setSubTasks] = useState([]);
   const authToken = localStorage.getItem('authToken');
+  const [userRole, setUserRole] = useState("");
+
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const response = await fetch("https://localhost:7136/api/Users/get_role", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const role = await response.text();
+        setUserRole(role);
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+      }
+    };
+
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,6 +87,7 @@ function Task() {
     return <SpinnerLoading />;
   }
 
+
   return (
     <Box sx={{ flexGrow: 1, maxWidth: "100%" }}>
       <Grid container spacing={1}>
@@ -69,17 +97,20 @@ function Task() {
         </Grid>
 
         {/* Edit Button */}
-        <Grid item xs={1} md={12} sx={{ textAlign: 'right', marginRight: '10px', marginTop: '-45px' }}>
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to={`/editTask/${taskId}`}
-          >
-            Edit
-          </Button>
-        </Grid>
-
+        {userRole.includes("Manager") && (
+          <>
+            <Grid item xs={1} md={12} sx={{ textAlign: 'right', marginRight: '10px', marginTop: '-45px' }}>
+              <Button
+                variant="contained"
+                color="primary"
+                component={Link}
+                to={`/editTask/${taskId}`}
+              >
+                Edit
+              </Button>
+            </Grid>
+          </>
+        )}
         {/* Task Title */}
         <Grid item xs={12} md={12}>
           <Typography variant="h6" component="div">

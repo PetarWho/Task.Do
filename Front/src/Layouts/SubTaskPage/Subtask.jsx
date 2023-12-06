@@ -97,14 +97,14 @@ function Subtask() {
           }
         );
 
-      
+
 
         if (!response.ok) {
           throw new Error("Image upload failed");
         }
-        
+        window.location.reload(true);
         setIsLoading(false);
-        
+
       } catch (error) {
         console.error("Error uploading image:", error);
         setErrorMsg("Failed to upload image. Please try again.");
@@ -146,116 +146,118 @@ function Subtask() {
         setErrorMsg("");
       }, 5000); // Clear the error message after 5 seconds, adjust as needed
     }
-  
-};
 
-if (!subtask) {
-  return <SpinnerLoading />;
-}
+  };
 
-return (
-  <Box sx={{ flexGrow: 1, maxWidth: "100%" }}>
-    <Grid container spacing={2}>
-      <Grid item xs={1} md={1} sx={{ marginTop: "10px" }}>
-        <BackButton />
-      </Grid>
+  if (!subtask) {
+    return <SpinnerLoading />;
+  }
 
-      <Grid item xs={12} md={12}>
-        <Typography variant="h5">{subtask.Title}</Typography>
-        <Typography variant="body1">{subtask.Description}</Typography>
-      </Grid>
+  return (
+    <Box sx={{ flexGrow: 1, maxWidth: "100%" }}>
+      <Grid container spacing={2}>
+        <Grid item xs={1} md={1} sx={{ marginTop: "10px" }}>
+          <BackButton />
+        </Grid>
 
-      {/* Display Subtask Properties */}
-      <Grid item xs={12} md={12}>
-        <Typography variant="body1">Photos: {subtask.Images.$values.length}/{subtask.RequiredPhotosCount}</Typography>
-        <Typography variant="body1">Notes: {subtask.Notes.$values.length}/{subtask.RequiredNotesCount}</Typography>
-        <Typography variant="body1">{subtask.IsFinished ? "Finished" : "Unfinished"}</Typography>
-      </Grid>
+        <Grid item xs={12} md={12}>
+          <Typography variant="h5">{subtask.Title}</Typography>
+          <Typography variant="body1">{subtask.Description}</Typography>
+        </Grid>
 
-      {/* Display Uploaded Images */}
-      <Grid item xs={12} md={12}>
+        {/* Display Subtask Properties */}
+        <Grid item xs={12} md={12}>
+          <Typography variant="body1">Photos: {subtask.Images.$values.length}/{subtask.RequiredPhotosCount}</Typography>
+          <Typography variant="body1">Notes: {subtask.Notes.$values.length}/{subtask.RequiredNotesCount}</Typography>
+          <Typography variant="body1">{subtask.IsFinished ? "Finished" : "Unfinished"}</Typography>
+        </Grid>
 
-        <Typography variant="h6">Uploaded Images</Typography>
-        <div className="images-container">
-          {subtask.Images && subtask.Images.$values && subtask.Images.$values.length > 0 ? (
+        {/* Display Uploaded Images */}
+        <Grid item xs={12} md={12}>
+
+          <Typography variant="h6">Uploaded Images</Typography>
+          <div className="images-container">
+            {subtask.Images && subtask.Images.$values && subtask.Images.$values.length > 0 ? (
+              (() => {
+
+                const imageElements = [];
+                for (let i = 0; i < subtask.Images.$values.length; i++) {
+                  const image = subtask.Images.$values[i];
+                  imageElements.push(
+                    <div key={image.Id}>
+                      <img className="subtask-image" src={image.URL} alt={`Image ${image.Id}`} />
+                    </div>
+                  );
+                }
+                return imageElements;
+              })()
+            ) : (
+              <Typography variant="body1">No images uploaded</Typography>
+            )}
+          </div>
+        </Grid>
+        {!userRole.includes("Manager") && subtask.Task.Status === 1 && subtask.Images.$values.length < subtask.RequiredPhotosCount && (
+          <>
+            <Grid item xs={12} md={12}>
+              <FileUploader handleFile={handleFile} />
+            </Grid>
+          </>
+        )}
+
+        {/* Display Added Notes */}
+        <Grid item xs={12} md={12}>
+          <Typography variant="h6">Added Notes</Typography>
+          {subtask.Notes && subtask.Notes.$values && subtask.Notes.$values.length > 0 ? (
             (() => {
-
-              const imageElements = [];
-              for (let i = 0; i < subtask.Images.$values.length; i++) {
-                const image = subtask.Images.$values[i];
-                imageElements.push(
-                  <div key={image.Id}>
-                    <img class="subtask-image" src={image.URL} alt={`Image ${image.Id}`} />
-                  </div>
+              const noteElements = [];
+              for (let i = 0; i < subtask.Notes.$values.length; i++) {
+                const note = subtask.Notes.$values[i];
+                noteElements.push(
+                  <Typography key={note.Id} variant="body1" gutterBottom>
+                    {note.Text}
+                  </Typography>
                 );
               }
-              return imageElements;
+              return noteElements;
             })()
           ) : (
-            <Typography variant="body1">No images uploaded</Typography>
+            <Typography variant="body1">No notes added</Typography>
           )}
-        </div>
-      </Grid>
+        </Grid>
 
+        {!userRole.includes("Manager") && subtask.Task.Status === 1 &&subtask.Notes.$values.length < subtask.RequiredNotesCount && (
+          <>
+            <Grid item xs={12} md={12}>
+              <TextField
+                id="note-text"
+                label="Leave a note"
+                multiline
+                rows={4}
+                variant="outlined"
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+              />
+            </Grid>
 
-      {/* Display Added Notes */}
-      <Grid item xs={12} md={12}>
-        <Typography variant="h6">Added Notes</Typography>
-        {subtask.Notes && subtask.Notes.$values && subtask.Notes.$values.length > 0 ? (
-          (() => {
-            const noteElements = [];
-            for (let i = 0; i < subtask.Notes.$values.length; i++) {
-              const note = subtask.Notes.$values[i];
-              noteElements.push(
-                <Typography key={note.Id} variant="body1" gutterBottom>
-                  {note.Text}
+            <Grid item xs={12} md={12} sx={{ marginBottom: "120px" }}>
+              <Button
+                variant="contained"
+                onClick={addNote}
+                disabled={!fileName && !noteText}
+              >
+                Save Note
+              </Button>
+              {errorMsg && (
+                <Typography variant="body1" color="error">
+                  {errorMsg}
                 </Typography>
-              );
-            }
-            return noteElements;
-          })()
-        ) : (
-          <Typography variant="body1">No notes added</Typography>
+              )}
+            </Grid>
+          </>
         )}
       </Grid>
-
-      {!userRole.includes("Manager") && subtask.Task.Status===1 && (
-        <>
-          <Grid item xs={12} md={12}>
-            <FileUploader handleFile={handleFile} />
-          </Grid>
-
-          <Grid item xs={12} md={12}>
-            <TextField
-              id="note-text"
-              label="Leave a note"
-              multiline
-              rows={4}
-              variant="outlined"
-              value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={12} sx={{ marginBottom: "120px" }}>
-            <Button
-              variant="contained"
-              onClick={addNote}
-              disabled={!fileName && !noteText}
-            >
-              Save Note
-            </Button>
-            {errorMsg && (
-              <Typography variant="body1" color="error">
-                {errorMsg}
-              </Typography>
-            )}
-          </Grid>
-        </>
-      )}
-    </Grid>
-  </Box>
-);
+    </Box>
+  );
 }
 
 
