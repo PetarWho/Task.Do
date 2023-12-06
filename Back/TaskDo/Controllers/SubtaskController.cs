@@ -324,12 +324,13 @@ namespace TaskDo.Controllers
 
         private void CheckCompletion(Subtask subtask)
         {
+            var task = _context.Tasks.Include(x=>x.Subtasks).FirstOrDefault(x=>x.Id == subtask.TaskId);
             if (subtask.Images.Count() >= subtask.RequiredPhotosCount && subtask.Notes.Count() >= subtask.RequiredNotesCount)
             {
                 subtask.IsFinished = true;
-                if (subtask.Task != null && subtask.Task.Subtasks.All(x => x.IsFinished))
+                if (task != null && task.Subtasks.All(x => x.IsFinished))
                 {
-                    subtask.Task.Status = Data.Entities.Enums.StatusEnum.Completed;
+                    task.Status = Data.Entities.Enums.StatusEnum.Completed;
                 }
             }
         }
