@@ -5,6 +5,7 @@ namespace TaskDo.Models.Subtask
 {
     public class SubtaskModel
     {
+
         [Required]
         [MinLength(3), MaxLength(30)]
         public string Title { get; set; } = null!;

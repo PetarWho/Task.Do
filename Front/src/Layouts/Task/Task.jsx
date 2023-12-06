@@ -17,7 +17,7 @@ import fetch from '../../axiosInterceptor';
 function Task() {
   const { taskId } = useParams();
   const [isLoading, setIsLoading] = useState(true);
-  const [task, setTask] = useState({ title: "", description: "" });
+  const [task, setTask] = useState({ Title: "", Description: "" });
   const [subTasks, setSubTasks] = useState([]);
   const authToken = localStorage.getItem('authToken');
 
@@ -45,7 +45,6 @@ function Task() {
 
         const taskData = await taskResponse.json();
         const subTasksData = await subTasksResponse.json();
-
         setTask(taskData);
         setSubTasks(subTasksData);
       } catch (error) {
@@ -75,7 +74,7 @@ function Task() {
             variant="contained"
             color="primary"
             component={Link}
-            to={`/createTask/${taskId}`}
+            to={`/editTask/${taskId}`}
           >
             Edit
           </Button>
@@ -83,8 +82,8 @@ function Task() {
 
         {/* Task Title */}
         <Grid item xs={12} md={12}>
-          <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-            {task.title}
+          <Typography variant="h6" component="div">
+            {task.Title}
           </Typography>
         </Grid>
 
@@ -92,8 +91,8 @@ function Task() {
 
         {/* Task Description */}
         <Grid item xs={12} md={12}>
-          <Typography sx={{ mt: 4, mb: 2 }} variant="body1" component="div">
-            {task.description}
+          <Typography variant="body1" component="div">
+            {task.Description}
           </Typography>
         </Grid>
 

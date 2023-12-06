@@ -7,7 +7,7 @@ import Footer from "./Layouts/HeaderAndFooter/Footer";
 import TaskCalendar from "./Layouts/TaskCalendar/TaskCalendar";
 import AdminTasks from "./Layouts/AdminPanel/AdminTasks";
 import CreateTask from "./Layouts/AdminPanel/CreateTask";
-import CreateSubtask from "./Layouts/AdminPanel/CreateSubTask";
+import EditTask from "./Layouts/AdminPanel/EditTask";
 import AdminCalendar from "./Layouts/AdminPanel/AdminTaskCalendar";
 import RegistrationForm from "./Layouts/RegistrationForm";
 import LoginForm from "./Layouts/LoginForm";
@@ -28,6 +28,7 @@ function App() {
           <Route path="/register" element={<RegistrationForm />} />
           <Route element={<PrivateRoutes/>}>
           <Route path="/createTask" element={<CreateTask />} />
+          <Route path="/editTask/:taskId" element={<EditTask />} />
           <Route path="/calendar" element={<TaskCalendar />} />
           <Route path="/adminCalendar" element={<AdminCalendar />} />
           <Route path="/adminTasks" element={<AdminTasks />} />
