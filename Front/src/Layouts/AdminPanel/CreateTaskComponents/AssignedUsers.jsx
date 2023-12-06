@@ -15,7 +15,7 @@ const AssignedUsers = ({ assignedUsers, handleDeleteUser, openAddUserDialog }) =
             <ListItem key={index} sx={{ margin: "10px", width: "auto", display: "flex", justifyContent: "space-between", border: "1px solid rgb(177, 226, 247)"}}>
               <ListItemText primary={user.username ?? user.UserName} />
               <ListItemAvatar>
-                <DeleteIcon onClick={() => handleDeleteUser(user.EmployeeId)} style={{ cursor: "pointer" }} />
+              <DeleteIcon onClick={() => handleDeleteUser(user.Id || user.EmployeeId)} style={{ cursor: "pointer" }} />
               </ListItemAvatar>
             </ListItem>
           );

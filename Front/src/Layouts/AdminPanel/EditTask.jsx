@@ -91,13 +91,14 @@ const EditTask = () => {
 
     const handleDeleteUser = (userId) => {
         const updatedUsers = assignedUsers.filter(
-            (user) => user.EmployeeId !== userId
+            (user) => (user.Id || user.EmployeeId) !== userId
         );
         setAssignedUsers(updatedUsers);
     };
+    
     const handleDeleteSubTask = (subTaskId) => {
         const updatedSubTasks = subTasks.filter(
-            (subtask) => subtask.id !== subTaskId
+            (subtask) => (subtask.Id || subtask.id)  !== subTaskId
         );
         setSubTasks(updatedSubTasks);
     };

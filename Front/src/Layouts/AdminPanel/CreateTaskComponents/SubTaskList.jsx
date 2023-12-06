@@ -27,7 +27,7 @@ const SubtaskList = ({ subTasks, handleDeleteSubTask, handleEditSubtask }) => {
           />
           <ListItemAvatar>
             <DeleteIcon
-              onClick={() => handleDeleteSubTask(subtask.id)}
+              onClick={() => handleDeleteSubTask(subtask.id ?? subtask.Id)}
               style={{ cursor: "pointer" }}
             />
           </ListItemAvatar>
